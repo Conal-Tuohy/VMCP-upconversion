@@ -14,9 +14,9 @@
 	<p:import href="http://xmlcalabash.com/extension/steps/library-1.0.xpl"/>
 	
 <!--
-	<vmcp:convert-directory input-directory="../odt" output-directory="../tei"/>
--->	
 	<vmcp:convert-directory input-directory="../odt/1840-9/1840-4" output-directory="../tei/1840-9/1840-4"/>
+-->	
+	<vmcp:convert-directory input-directory="../odt" output-directory="../tei"/>
 	<p:declare-step name="sorted-directory-list" type="vmcp:directory-list">
 		<p:option name="path"/>
 		<p:output port="result"/>
