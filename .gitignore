@@ -1,12 +1,9 @@
-*.class
+# source Microsoft Word files
+/doc
+# intermediate OpenDocument files
+/odt
+# output TEI XML files
+/tei
+# ignore jEdit's backup files
+*.???~
 
-# Mobile Tools for Java (J2ME)
-.mtj.tmp/
-
-# Package Files #
-*.jar
-*.war
-*.ear
-
-# virtual machine crash logs, see http://www.java.com/en/download/help/error_hotspot.xml
-hs_err_pid*
