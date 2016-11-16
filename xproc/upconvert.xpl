@@ -15,6 +15,7 @@
 	
 <!--
 	<vmcp:convert-directory input-directory="../odt/1840-9/1840-4" output-directory="../tei/1840-9/1840-4"/>
+	<vmcp:convert-directory input-directory="../odt/Mentions/1870-9" output-directory="../tei/Mentions/1870-9"/>
 -->	
 	<vmcp:convert-directory input-directory="../odt" output-directory="../tei"/>
 	<p:declare-step name="sorted-directory-list" type="vmcp:directory-list">
@@ -23,7 +24,7 @@
 		<p:directory-list name="directory-list">
 			<p:with-option name="path" select="$path"/>
 		</p:directory-list>
-		<p:xslt name="sort-directory-list">
+		<p:xslt name="sort-directory-list"><!-- just so we can process the documents in chronological order -->
 			<p:input port="parameters"><p:empty/></p:input>
 			<p:input port="stylesheet">
 				<p:inline>
@@ -101,13 +102,33 @@
 			"/>
 		</cx:message>
 		<p:for-each name="file-in-directory">
-			<p:iteration-source select="/c:directory/c:file[ends-with(@name, '.odt')]">
-				<p:pipe step="input-directory-list" port="result"/>
-			</p:iteration-source>
+			<p:iteration-source select="/c:directory/c:file[ends-with(@name, '.odt')]"/>
 			<p:variable name="file-name" select="/c:file/@name"/>
 			<p:variable name="input-file-uri-component" select="concat('/', encode-for-uri($file-name))"/>
 			<!-- for the output filename, convert the extension from '.odt' to '.xml' and replace any '#' characters with '_' -->
-			<p:variable name="output-file-uri-component" select="translate(replace($input-file-uri-component, 'odt$', 'xml'), '#', '_')"/>
+			<p:variable name="output-file-uri-component" select="
+				concat(
+					'/', 
+					replace(
+						encode-for-uri(
+							translate($file-name, '#', '_')
+						), 
+						'odt$', 
+						'xml'
+					)
+				)
+			"/>
+			<cx:message>
+				<p:with-option name="message" select="
+					concat(
+						'Converting ', 
+						$input-directory, $input-file-uri-component,
+						' to ',
+						$output-directory, $output-file-uri-component,
+						' ...'
+					)
+				"/>
+			</cx:message>
 			<p:group>
 				<p:documentation>extract text and formatting stylesheet from the OpenDocument file</p:documentation>
 				<pxp:unzip file="content.xml" name="content">
