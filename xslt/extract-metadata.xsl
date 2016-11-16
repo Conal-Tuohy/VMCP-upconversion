@@ -11,7 +11,7 @@ tei:p[@rend='number'] -> tei:msDesc/tei:altIdentiier/tei:idno
 tei:p[@rend='location'] -> tei:msDesc/tei:msIdentiier/tei:idno
 
 -->
-
+	
 	<xsl:template match="tei:teiHeader">
 		<xsl:copy>
 			<xsl:copy-of select="@*"/>
@@ -25,6 +25,35 @@ tei:p[@rend='location'] -> tei:msDesc/tei:msIdentiier/tei:idno
 				</profileDesc>
 			</xsl:if>
 			-->
+		</xsl:copy>
+	</xsl:template>
+	
+	<xsl:template match="tei:teiHeader//tei:author[not(normalize-space())]">
+		<xsl:copy-of select="$authors"/>
+	</xsl:template>
+
+	<xsl:variable name="title" select="
+		concat(
+			substring(
+				string-join(
+					(/tei:TEI/tei:text/tei:body/tei:p[normalize-space()])[position()&lt;6]/node()[not(self::tei:note)], 
+					' ¶ '
+				),
+				1, 
+				200
+			),
+			'...'
+		)
+	"/>
+	
+	<xsl:variable name="authors">
+		<xsl:apply-templates select="//tei:p[@rend='correspondent']" mode="correspondent-name"/>
+	</xsl:variable>
+
+	<xsl:template match="tei:teiHeader//tei:title[not(normalize-space())]">
+		<xsl:copy>
+			<xsl:copy-of select="@*"/>
+			<xsl:value-of select="$title"/>
 		</xsl:copy>
 	</xsl:template>
 	
@@ -58,9 +87,8 @@ tei:p[@rend='location'] -> tei:msDesc/tei:msIdentiier/tei:idno
 				</msIdentifier>
 			</msDesc>
 			<bibl>
-				<xsl:for-each select="//tei:p[@rend='correspondent']">
-					<author><xsl:apply-templates select="." mode="correspondent-name"/></author>
-				</xsl:for-each>
+				<xsl:copy-of select="$authors"/>
+				<title><xsl:value-of select="$title"/></title>
 				<xsl:variable name="date-regex">([1-9]\d)-(\d\d)-(\d\d)</xsl:variable><!-- yy-mm-dd -->
 				<xsl:analyze-string select="/tei:TEI/tei:teiHeader/tei:fileDesc/tei:publicationStmt/tei:idno[@type='filename']" regex="{$date-regex}">
 					<xsl:matching-substring>
@@ -96,7 +124,7 @@ tei:p[@rend='location'] -> tei:msDesc/tei:msIdentiier/tei:idno
 		<xsl:variable name="text" select="string-join(text(), ' ')"/><!-- ignoring any notes -->
 		<xsl:analyze-string select="$text" regex="(From )?(.+)">
 			<xsl:matching-substring>
-				<xsl:value-of select="regex-group(2)"/>
+				<author><xsl:value-of select="regex-group(2)"/></author>
 			</xsl:matching-substring>
 		</xsl:analyze-string>
 	</xsl:template>
