@@ -151,6 +151,13 @@
 					<p:document href="../xslt/odt-styles-and-content-to-tei.xsl"/>
 				</p:input>
 			</p:xslt>
+			<p:xslt name="language-encoded-translations">
+				<p:documentation>handle German/English translations</p:documentation>
+				<p:input port="parameters"><p:empty/></p:input>
+				<p:input port="stylesheet">
+					<p:document href="../xslt/encode-translations.xsl"/>
+				</p:input>
+			</p:xslt>
 			<p:xslt name="metadata-extracted">
 				<p:documentation>find metadata in text and insert in header</p:documentation>
 				<p:input port="parameters"><p:empty/></p:input>
@@ -158,11 +165,11 @@
 					<p:document href="../xslt/extract-metadata.xsl"/>
 				</p:input>
 			</p:xslt>
-			<p:xslt name="language-encoded-translations">
-				<p:documentation>handle German/English translations</p:documentation>
+			<p:xslt name="language-usage-metrics">
+				<p:documentation>Measure usage of English and German</p:documentation>
 				<p:input port="parameters"><p:empty/></p:input>
 				<p:input port="stylesheet">
-					<p:document href="../xslt/encode-translations.xsl"/>
+					<p:document href="../xslt/tei-add-lang-usage.xsl"/>
 				</p:input>
 			</p:xslt>
 			<p:xslt name="semantic-tei">
@@ -172,13 +179,14 @@
 					<p:document href="../xslt/tei-styled-text-to-semantic-markup.xsl"/>
 				</p:input>
 			</p:xslt>
+			<!--
 			<p:xslt name="titled">
 				<p:documentation>The letters don't have titles, so here we generate an incipit</p:documentation>
 				<p:input port="parameters"><p:empty/></p:input>
 				<p:input port="stylesheet">
 					<p:document href="../xslt/tei-add-titles.xsl"/>
 				</p:input>
-			</p:xslt>
+			</p:xslt>-->
 			<p:xslt name="xtf-compatible">
 				<p:documentation>make changes for XTF compatibility; headings, identifiers, top-level div</p:documentation>
 				<p:input port="parameters"><p:empty/></p:input>

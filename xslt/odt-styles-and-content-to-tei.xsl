@@ -54,6 +54,7 @@
 				</encodingDesc>
 				<profileDesc>
 					<textClass/><!-- to be filled in by later steps -->
+					<langUsage/><!-- to be filled in by later steps -->
 				</profileDesc>
 			</teiHeader>
 			<text>

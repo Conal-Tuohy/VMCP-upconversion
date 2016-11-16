@@ -36,7 +36,7 @@ tei:p[@rend='location'] -> tei:msDesc/tei:msIdentiier/tei:idno
 		concat(
 			substring(
 				string-join(
-					(/tei:TEI/tei:text/tei:body/tei:p[normalize-space()])[position()&lt;6]/node()[not(self::tei:note)], 
+					(/tei:TEI/tei:text/tei:body/tei:p[not(@xml:lang='de')][normalize-space()])[position()&lt;6]/node()[not(self::tei:note)], 
 					' ¶ '
 				),
 				1, 
