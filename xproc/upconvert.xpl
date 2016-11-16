@@ -89,13 +89,25 @@
 		<vmcp:directory-list name="input-directory-list">
 			<p:with-option name="path" select="$input-directory"/>
 		</vmcp:directory-list>
+		<cx:message>
+			<p:with-option name="message" select="
+				concat(
+					'Converting ', 
+					$input-directory,
+					' to ',
+					$output-directory, 
+					' ...'
+				)
+			"/>
+		</cx:message>
 		<p:for-each name="file-in-directory">
 			<p:iteration-source select="/c:directory/c:file[ends-with(@name, '.odt')]">
 				<p:pipe step="input-directory-list" port="result"/>
 			</p:iteration-source>
 			<p:variable name="file-name" select="/c:file/@name"/>
 			<p:variable name="input-file-uri-component" select="concat('/', encode-for-uri($file-name))"/>
-			<p:variable name="output-file-uri-component" select="replace($input-file-uri-component, 'odt$', 'xml')"/>
+			<!-- for the output filename, convert the extension from '.odt' to '.xml' and replace any '#' characters with '_' -->
+			<p:variable name="output-file-uri-component" select="translate(replace($input-file-uri-component, 'odt$', 'xml'), '#', '_')"/>
 			<p:group>
 				<p:documentation>extract text and formatting stylesheet from the OpenDocument file</p:documentation>
 				<pxp:unzip file="content.xml" name="content">
