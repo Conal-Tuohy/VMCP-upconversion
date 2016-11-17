@@ -17,7 +17,13 @@
 	<vmcp:convert-directory input-directory="../odt/1840-9/1840-4" output-directory="../tei/1840-9/1840-4"/>
 	<vmcp:convert-directory input-directory="../odt/Mentions/1870-9" output-directory="../tei/Mentions/1870-9"/>
 -->	
-	<vmcp:convert-directory input-directory="../odt" output-directory="../tei"/>
+	<p:option name="input-directory" required="true"/>
+	<p:option name="output-directory" required="true"/>
+	<vmcp:convert-directory>
+		<p:with-option name="input-directory" select="$input-directory"/>
+		<p:with-option name="output-directory" select="$output-directory"/>
+	</vmcp:convert-directory>		
+		
 	<p:declare-step name="sorted-directory-list" type="vmcp:directory-list">
 		<p:option name="path"/>
 		<p:output port="result"/>
@@ -199,6 +205,13 @@
 				<p:input port="parameters"><p:empty/></p:input>
 				<p:input port="stylesheet">
 					<p:document href="../xslt/prune-empty-header-elements.xsl"/>
+				</p:input>
+			</p:xslt>
+			<p:xslt name="minimal-css">
+				<p:documentation>clean up unneeded css inherited from formatting in the Word document</p:documentation>
+				<p:input port="parameters"><p:empty/></p:input>
+				<p:input port="stylesheet">
+					<p:document href="../xslt/strip-rendundant-css.xsl"/>
 				</p:input>
 			</p:xslt>
 			<p:try>
