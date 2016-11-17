@@ -131,7 +131,7 @@
 		style's parent style's name, if it has one -->
 		<xsl:variable name="automatic-style" select="key('automatic-styles-by-name', .)"/>
 		<xsl:choose>
-			<xsl:when test="$automatic-style">
+			<xsl:when test="exists($automatic-style)">
 				<!-- "automatic" style is just an anonymous style based on a real ("common") style which is its "parent" -->
 				<xsl:for-each select="$automatic-style/@style:parent-style-name">
 					<xsl:attribute name="rend"><xsl:value-of select="."/></xsl:attribute>
@@ -156,7 +156,7 @@
 		<xsl:param name="style"/>
 		<xsl:param name="existing-attributes" select="/.."/>
 		<xsl:variable name="existing-attribute-names" select="for $attribute in $existing-attributes return local-name($attribute)"/>
-		<xsl:variable name="formatting-attributes" select="$style/*/@fo:*"/>
+		<xsl:variable name="formatting-attributes" select="$style/*/@fo:* | $style/*/@style:font-name"/>
 		<xsl:variable name="combined-attributes" select="
 			$existing-attributes | 
 			$formatting-attributes[not(local-name(.) = $existing-attribute-names)]
@@ -178,9 +178,10 @@
 	</xsl:template>
 
 	<!-- render a formatting objects atribute as a CSS property -->
-	<xsl:template match="@fo:*">
+	<xsl:template match="@fo:*  | @style:font-name">
 		<xsl:value-of select="concat(local-name(.), ': ', ., '; ')"/>
 	</xsl:template>
+	
 	<!-- formatting objects attributes without a corresponding CSS property -->
 	<xsl:template match="@fo:language | @fo:country"/>
 	<!-- unwanted CSS properties -->

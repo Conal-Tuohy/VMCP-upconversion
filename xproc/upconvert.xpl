@@ -150,11 +150,19 @@
 					</p:input>
 				</p:wrap-sequence>
 			</p:group>
+			<p:identity name="styles-and-content"/>
 			<p:xslt name="p5">
 				<p:documentation>convert the OpenDocument file into TEI</p:documentation>
 				<p:with-param name="file-name" select="concat($path-name, '/', replace($file-name, 'odt', 'doc'))"/>
 				<p:input port="stylesheet">
 					<p:document href="../xslt/odt-styles-and-content-to-tei.xsl"/>
+				</p:input>
+			</p:xslt>
+			<p:xslt name="symbols-in-unicode">
+				<p:documentation>Fix the obsolete "Symbol" encoding</p:documentation>
+				<p:input port="parameters"><p:empty/></p:input>
+				<p:input port="stylesheet">
+					<p:document href="../xslt/fix-symbol-encoding.xsl"/>
 				</p:input>
 			</p:xslt>
 			<p:xslt name="language-encoded-translations">
@@ -231,6 +239,13 @@
 			<!-- save TEI file -->
 			<p:store indent="true">
 				<p:with-option name="href" select="concat($output-directory, $output-file-uri-component)"/>
+			</p:store>
+			<!-- save ODT content+style file for reference -->
+			<p:store indent="true">
+				<p:with-option name="href" select="concat($input-directory, $output-file-uri-component)"/>
+				<p:input port="source">
+					<p:pipe step="styles-and-content" port="result"/>
+				</p:input>
 			</p:store>
 		</p:for-each>
 		<p:for-each name="subdirectory">
