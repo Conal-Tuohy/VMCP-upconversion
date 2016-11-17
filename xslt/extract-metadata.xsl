@@ -60,7 +60,7 @@ tei:p[@rend='location'] -> tei:msDesc/tei:msIdentiier/tei:idno
 	<xsl:template match="tei:textClass">
 		<xsl:copy>
 			<xsl:copy-of select="@* | node()"/>
-			<xsl:variable name="plants" select="//tei:p[@rend=('Plant_20_names', 'plant_20_names')]/text()"/>
+			<xsl:variable name="plants" select="//tei:p[@rend=('Plant_20_names', 'plant_20_names')]"/>
 			<xsl:if test="$plants">
 				<keywords scheme="plants">
 					<xsl:for-each select="$plants">
