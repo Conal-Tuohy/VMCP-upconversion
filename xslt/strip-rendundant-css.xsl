@@ -3,9 +3,9 @@
 	xmlns:tei="http://www.tei-c.org/ns/1.0"
 	xmlns="http://www.tei-c.org/ns/1.0"
 	exclude-result-prefixes="tei">
-	<!-- throw out all the formatting associated with the "number" style on the assumption that
-	it's not transcriptional but rather a metadata field (TODO check this assumption) -->
-	<xsl:template match="tei:p[@rend='number']/@style"/>
+	<!-- throw out all the formatting associated with paragraphs using various styles, on the assumption that
+	they are not transcriptional but rather metadata field (TODO check this assumption) -->
+	<xsl:template match="tei:p[@rend=('number', 'location', 'correspondent', 'plant_20_names')]/@style"/>
 
 	<xsl:template match="* | @*">
 		<xsl:copy>
