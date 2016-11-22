@@ -76,7 +76,8 @@ tei:p[@rend='location'] -> tei:msDesc/tei:msIdentiier/tei:idno
 	
 	<xsl:template match="tei:profileDesc">
 		<xsl:copy>
-			<xsl:copy-of select="@* | node()"/>
+			<xsl:copy-of select="@*"/>
+			<xsl:apply-templates/>
 			<correspDesc>
 				<correspAction type="sentTo">
 					<xsl:variable name="correspondent" select="//tei:p[@rend='correspondent'][normalize-space()]"/>
