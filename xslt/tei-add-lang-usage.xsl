@@ -16,11 +16,13 @@
 					<xsl:variable name="german-length" select="sum(for $t in $german return string-length($t))"/>
 					<xsl:variable name="english-percentage" select="(100 * $english-length) idiv ($english-length + $german-length)"/>
 					<xsl:variable name="german-percentage" select="100 - $english-percentage"/>
-					<language id="en" usage="{$english-percentage}">English</language>
-					<language id="de" usage="{$german-percentage}">German</language>
+					<language ident="en" usage="{$english-percentage}">English</language>
+					<xsl:if test="$german">
+						<language ident="de" usage="{$german-percentage}">German</language>
+					</xsl:if>
 				</xsl:when>
 				<xsl:otherwise>
-					<language id="en" usage="100">English</language>
+					<language ident="en" usage="100">English</language>
 				</xsl:otherwise>
 			</xsl:choose>
 		</xsl:copy>

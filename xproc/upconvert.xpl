@@ -51,10 +51,37 @@
 	</p:declare-step>
 	
 	<p:declare-step name="add-keywords" type="vmcp:add-keywords" xmlns="http://www.tei-c.org/ns/1.0">
-		<p:option name="scheme" required="true"/>
+		<p:option name="scheme-id" required="true"/>
+		<p:option name="scheme-name" required="true"/>
 		<p:option name="term" required="true"/>
 		<p:input port="source"/>
 		<p:output port="result"/>
+		<p:insert name="class-decl" match="/tei:TEI/tei:teiHeader/tei:encodingDesc[not(exists(tei:classDecl))]" position="last-child">
+			<p:input port="insertion">
+				<p:inline exclude-inline-prefixes="c cx fn vmcp tei l pxp xs file">
+					<classDecl/>
+				</p:inline>
+			</p:input>
+		</p:insert>
+		<p:template name="taxonomy">
+			<p:with-param name="scheme-id" select="$scheme-id"/>
+			<p:with-param name="scheme-name" select="$scheme-name"/>
+			<p:input port="template">
+				<p:inline exclude-inline-prefixes="c cx fn vmcp tei l pxp xs file">
+					<taxonomy xml:id="{$scheme-id}">
+						<bibl>{$scheme-name}</bibl>
+					</taxonomy>
+				</p:inline>
+			</p:input>
+		</p:template>
+		<p:insert match="/tei:TEI/tei:teiHeader/tei:encodingDesc/tei:classDecl" position="last-child">
+			<p:input port="source">
+				<p:pipe step="class-decl" port="result"/>
+			</p:input>
+			<p:input port="insertion">
+				<p:pipe step="taxonomy" port="result"/>
+			</p:input>
+		</p:insert>
 		<p:insert match="/tei:TEI/tei:teiHeader[not(tei:profileDesc)]" position="last-child">
 			<p:input port="insertion">
 				<p:inline exclude-inline-prefixes="c cx fn vmcp tei l pxp xs file"><profileDesc/></p:inline>
@@ -66,11 +93,11 @@
 			</p:input>
 		</p:insert>
 		<p:template name="insertion">
-			<p:with-param name="scheme" select="$scheme"/>
+			<p:with-param name="scheme-id" select="$scheme-id"/>
 			<p:with-param name="term" select="$term"/>
 			<p:input port="template">
 				<p:inline exclude-inline-prefixes="c cx fn vmcp tei l pxp xs file">
-					<keywords scheme="{$scheme}">
+					<keywords scheme="#{$scheme-id}">
 						<term>{$term}</term>
 					</keywords>
 				</p:inline>
@@ -230,10 +257,10 @@
 							<p:document href="../schema/tei_all.rng"/>
 						</p:input>
 					</p:validate-with-relax-ng>
-					<vmcp:add-keywords scheme="validity" term="valid"/>
+					<vmcp:add-keywords scheme-id="validity" scheme-name="validity" term="valid"/>
 				</p:group>
 				<p:catch name="invalid">
-					<vmcp:add-keywords scheme="validity" term="invalid"/>
+					<vmcp:add-keywords scheme-id="validity" scheme-name="validity"  term="invalid"/>
 				</p:catch>
 			</p:try>
 			<!-- save TEI file -->
