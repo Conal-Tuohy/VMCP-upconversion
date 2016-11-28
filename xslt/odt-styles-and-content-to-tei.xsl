@@ -7,7 +7,8 @@
 	xmlns:dc="http://purl.org/dc/elements/1.1/"
 	xmlns:draw="urn:oasis:names:tc:opendocument:xmlns:drawing:1.0" 
 	xmlns="http://www.tei-c.org/ns/1.0"
-	exclude-result-prefixes="style text office fo dc draw">
+	xmlns:table="urn:oasis:names:tc:opendocument:xmlns:table:1.0" 
+	exclude-result-prefixes="style text office fo dc draw table">
 	<xsl:param name="file-name"/>
 	<xsl:template match="/odt">
 		<TEI>
@@ -223,6 +224,28 @@
 		<xsl:element name="space">
 			<xsl:attribute name="unit">chars</xsl:attribute>
 			<xsl:attribute name="quantity"><xsl:value-of select="(@text:c, 1)[1]"/></xsl:attribute>
+		</xsl:element>
+	</xsl:template>
+	
+	<xsl:template match="table:table">
+		<xsl:element name="table">
+			<xsl:attribute name="n" select="@table:name"/>
+			<!-- TODO table style-name -->
+			<xsl:apply-templates/>
+		</xsl:element>
+	</xsl:template>
+	
+	<xsl:template match="table:table-row">
+		<xsl:element name="row">
+			<!-- TODO table style-name -->
+			<xsl:apply-templates/>
+		</xsl:element>
+	</xsl:template>
+	
+	<xsl:template match="table:table-cell">
+		<xsl:element name="cell">
+			<!-- TODO table style-name -->
+			<xsl:apply-templates/>
 		</xsl:element>
 	</xsl:template>
 		

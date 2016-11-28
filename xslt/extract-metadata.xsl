@@ -104,14 +104,18 @@ tei:p[@rend='location'] -> tei:msDesc/tei:msIdentiier/tei:idno
 	<xsl:template match="tei:encodingDesc">
 		<xsl:copy>
 			<xsl:copy-of select="@* | node()"/>
-			<xsl:if test="$plant-names">
-				<xsl:element name="classDecl">
+			<xsl:element name="classDecl">
+				<xsl:if test="$plant-names">
 					<xsl:element name="taxonomy">
 						<xsl:attribute name="xml:id">plant-names</xsl:attribute>
 						<xsl:element name="bibl">plant names</xsl:element>
 					</xsl:element>
+				</xsl:if>
+				<xsl:element name="taxonomy">
+					<xsl:attribute name="xml:id">features</xsl:attribute>
+					<xsl:element name="bibl">features</xsl:element>
 				</xsl:element>
-			</xsl:if>
+			</xsl:element>
 		</xsl:copy>
 	</xsl:template>
 	
@@ -123,6 +127,14 @@ tei:p[@rend='location'] -> tei:msDesc/tei:msIdentiier/tei:idno
 					<xsl:for-each select="$plant-names">
 						<term><xsl:value-of select="."/></term>
 					</xsl:for-each>
+				</keywords>
+			</xsl:if>
+			<xsl:variable name="tables" select="exists(//tei:table)"/>
+			<xsl:variable name="figures" select="exists(//tei:figure)"/>
+			<xsl:if test="$tables or $figures">
+				<keywords scheme="#features">
+					<xsl:if test="$tables"><term>table</term></xsl:if>
+					<xsl:if test="$figures"><term>figure</term></xsl:if>
 				</keywords>
 			</xsl:if>
 		</xsl:copy>
