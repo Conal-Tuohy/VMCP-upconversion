@@ -154,7 +154,7 @@ tei:p[@rend='location'] -> tei:msDesc/tei:msIdentiier/tei:idno
 						<xsl:variable name="day" select="regex-group(3)"/>
 						<xsl:variable name="when" select="
 							concat(
-								'18', 
+								if (number($year) &lt; 40) then '19' else '18', 
 								$year,
 								if ($month = '00') then 
 									'' 
