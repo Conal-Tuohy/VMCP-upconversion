@@ -99,7 +99,7 @@ tei:p[@rend='location'] -> tei:msDesc/tei:msIdentiier/tei:idno
 	</xsl:template>
 	
 	<xsl:variable name="plant-names" 
-		select="//tei:p[@rend=('Plant_20_names', 'plant_20_names')][normalize-space()]"/>
+		select="//tei:p[@rend=('Plant%20names', 'plant%20names')][normalize-space()]"/>
 
 	<xsl:template match="tei:encodingDesc">
 		<xsl:copy>
@@ -115,6 +115,10 @@ tei:p[@rend='location'] -> tei:msDesc/tei:msIdentiier/tei:idno
 					<xsl:attribute name="xml:id">features</xsl:attribute>
 					<xsl:element name="bibl">features</xsl:element>
 				</xsl:element>
+				<xsl:element name="taxonomy">
+					<xsl:attribute name="xml:id">styles</xsl:attribute>
+					<xsl:element name="bibl">styles</xsl:element>
+				</xsl:element>
 			</xsl:element>
 		</xsl:copy>
 	</xsl:template>
@@ -129,14 +133,37 @@ tei:p[@rend='location'] -> tei:msDesc/tei:msIdentiier/tei:idno
 					</xsl:for-each>
 				</keywords>
 			</xsl:if>
+			<!-- tag the documents which contain tables or figures -->
 			<xsl:variable name="tables" select="exists(//tei:table)"/>
+			<xsl:variable name="notes" select="exists(//tei:note)"/>
 			<xsl:variable name="figures" select="exists(//tei:figure)"/>
-			<xsl:if test="$tables or $figures">
+			<xsl:variable name="hyperlinks" select="exists(//tei:ref)"/>
+			<xsl:if test="$tables or $figures or $notes or $hyperlinks">
 				<keywords scheme="#features">
 					<xsl:if test="$tables"><term>table</term></xsl:if>
+					<xsl:if test="$notes"><term>note</term></xsl:if>
 					<xsl:if test="$figures"><term>figure</term></xsl:if>
+					<xsl:if test="$hyperlinks"><term>hyperlink</term></xsl:if>
 				</keywords>
 			</xsl:if>
+			<!-- tag the document with the names of the styles used -->
+			<keywords scheme="#styles">
+				<xsl:for-each-group select="//tei:*/@rend" group-by=".">
+					<term><xsl:analyze-string select="." regex="%(.)(.)">
+						<xsl:matching-substring>
+							<xsl:variable name="hex" select=" '0123456789abcdef' "/>
+							<xsl:variable name="decimal" select="
+								string-length(substring-before($hex, regex-group(1))) * 16 +
+								string-length(substring-before($hex, regex-group(2)))
+							"/>
+							<xsl:value-of select="codepoints-to-string($decimal)"/>
+						</xsl:matching-substring>
+						<xsl:non-matching-substring>
+							<xsl:value-of select="."/>
+						</xsl:non-matching-substring>
+					</xsl:analyze-string></term>
+				</xsl:for-each-group>
+			</keywords>
 		</xsl:copy>
 	</xsl:template>
 

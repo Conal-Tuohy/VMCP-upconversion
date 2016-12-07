@@ -5,7 +5,7 @@
 	exclude-result-prefixes="tei">
 	<!-- throw out all the formatting associated with paragraphs using various styles, on the assumption that
 	they are not transcriptional but rather metadata field (TODO check this assumption) -->
-	<xsl:template match="tei:p[@rend=('number', 'location', 'correspondent', 'plant_20_names')]/@style"/>
+	<xsl:template match="tei:p[@rend=('number', 'location', 'correspondent', 'plant%20names')]/@style"/>
 
 	<xsl:template match="* | @*">
 		<xsl:copy>

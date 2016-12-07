@@ -66,6 +66,17 @@
 		</TEI>
 	</xsl:template>
 	
+	<xsl:template match="text:a">
+		<xsl:element name="ref">
+			<xsl:apply-templates select="@*"/>
+			<xsl:apply-templates/>
+		</xsl:element>
+	</xsl:template>
+	
+	<xsl:template match="@xlink:href" xmlns:xlink="http://www.w3.org/1999/xlink">
+		<xsl:attribute name="target"  select="."/>
+	</xsl:template>
+	
 	<xsl:template match="text:p">
 		<xsl:element name="p">
 			<xsl:apply-templates select="@*"/>
@@ -123,6 +134,16 @@
 	<xsl:template match="@text:note-class">
 		<xsl:attribute name="type"><xsl:value-of select="."/></xsl:attribute>
 	</xsl:template>
+	<xsl:template match="@*" mode="style-name">
+		<xsl:analyze-string select="." regex="_(..)_">
+			<xsl:matching-substring>
+				<xsl:value-of select="concat('%', regex-group(1))"/>
+			</xsl:matching-substring>
+			<xsl:non-matching-substring>
+				<xsl:value-of select="."/>
+			</xsl:non-matching-substring>
+		</xsl:analyze-string>
+	</xsl:template>
 	<xsl:template match="@text:style-name">
 		<!-- TODO capture all style information as CSS -->
 		<!-- automatic styles CSS should be encoded @as tei:style, common styles as tei:rendition -->
@@ -135,12 +156,12 @@
 			<xsl:when test="exists($automatic-style)">
 				<!-- "automatic" style is just an anonymous style based on a real ("common") style which is its "parent" -->
 				<xsl:for-each select="$automatic-style/@style:parent-style-name">
-					<xsl:attribute name="rend"><xsl:value-of select="."/></xsl:attribute>
+					<xsl:attribute name="rend"><xsl:apply-templates mode="style-name" select="."/></xsl:attribute>
 				</xsl:for-each>
 			</xsl:when>
 			<xsl:otherwise>
 				<!-- no automatic style of that name - it's a "common" (i.e. named) style -->
-				<xsl:attribute name="rend"><xsl:value-of select="."/></xsl:attribute>
+				<xsl:attribute name="rend"><xsl:apply-templates mode="style-name" select="."/></xsl:attribute>
 			</xsl:otherwise>
 		</xsl:choose>
 		<xsl:variable name="style" select="
@@ -245,8 +266,13 @@
 	<xsl:template match="table:table-cell">
 		<xsl:element name="cell">
 			<!-- TODO table style-name -->
+			<xsl:apply-templates select="@table:number-columns-spanned"/>
 			<xsl:apply-templates/>
 		</xsl:element>
+	</xsl:template>
+	
+	<xsl:template match="@table:number-columns-spanned">
+		<xsl:attribute name="cols" select="."/>
 	</xsl:template>
 		
 </xsl:stylesheet>
