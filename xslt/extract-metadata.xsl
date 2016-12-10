@@ -134,16 +134,51 @@ tei:p[@rend='location'] -> tei:msDesc/tei:msIdentiier/tei:idno
 				</keywords>
 			</xsl:if>
 			<!-- tag the documents which contain tables or figures -->
-			<xsl:variable name="tables" select="exists(//tei:table)"/>
-			<xsl:variable name="notes" select="exists(//tei:note)"/>
-			<xsl:variable name="figures" select="exists(//tei:figure)"/>
-			<xsl:variable name="hyperlinks" select="exists(//tei:ref)"/>
-			<xsl:if test="$tables or $figures or $notes or $hyperlinks">
+			<xsl:variable name="keywords">
+				<xsl:if test="exists(//tei:table)"><term>table</term></xsl:if>
+				<xsl:if test="exists(//tei:note)"><term>note</term></xsl:if>
+				<xsl:if test="exists(//tei:figure)"><term>figure</term></xsl:if>
+				<xsl:if test="exists(//tei:ref)"><term>hyperlink</term></xsl:if>
+				<!-- "tab alignment" is when a text includes two paragraphs in a row
+				which contain a tab which is not the start of the para -->
+				<xsl:if test="
+					//tei:p[
+						tei:space 	[@dim='horizontal'] [@extent='tab']
+							/preceding-sibling::text( )[normalize-space()]
+					]
+					[
+						preceding-sibling::*[1]/self::tei:p/
+							tei:space 	[@dim='horizontal'] [@extent='tab']
+								/preceding-sibling::text( )[normalize-space()]
+					]
+				"><term>tab alignment</term></xsl:if> 
+				<!-- "uneven tabulation" is when a text uses tab alignment, but
+				the number of tab characters used varies from one para to the next -->
+				<xsl:if test="
+					//tei:p[
+						tei:space 	[@dim='horizontal'] [@extent='tab']
+							/preceding-sibling::text( )[normalize-space()]
+					]
+					[
+						preceding-sibling::*[1]/self::tei:p/
+							tei:space 	[@dim='horizontal'] [@extent='tab']
+								/preceding-sibling::text( )[normalize-space()]
+					]
+					[
+						count(
+							tei:space 	[@dim='horizontal'] [@extent='tab']
+								/preceding-sibling::text( )[normalize-space()]
+						) != count(
+							preceding-sibling::*[1]/self::tei:p/
+								tei:space 	[@dim='horizontal'] [@extent='tab']
+									/preceding-sibling::text( )[normalize-space()]
+						)
+					]
+				"><term>uneven tabulation</term></xsl:if> 				
+			</xsl:variable>
+			<xsl:if test="$keywords">
 				<keywords scheme="#features">
-					<xsl:if test="$tables"><term>table</term></xsl:if>
-					<xsl:if test="$notes"><term>note</term></xsl:if>
-					<xsl:if test="$figures"><term>figure</term></xsl:if>
-					<xsl:if test="$hyperlinks"><term>hyperlink</term></xsl:if>
+					<xsl:copy-of select="$keywords"/>
 				</keywords>
 			</xsl:if>
 			<!-- tag the document with the names of the styles used -->
