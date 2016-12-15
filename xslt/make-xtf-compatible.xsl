@@ -9,7 +9,7 @@
 		<xsl:copy>
 			<xsl:apply-templates select="@*"/>
 			<div xml:id="main">
-				<head type="incipit"><supplied reason="XTF-compatiblity"><xsl:value-of select="/tei:TEI/tei:teiHeader/tei:fileDesc/tei:titleStmt/tei:title"/></supplied></head>
+				<head type="incipit"><supplied reason="XTF-compatibility"><xsl:value-of select="/tei:TEI/tei:teiHeader/tei:fileDesc/tei:titleStmt/tei:title"/></supplied></head>
 				<xsl:apply-templates/>
 			</div>
 		</xsl:copy>
