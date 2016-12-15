@@ -66,6 +66,9 @@
 		</TEI>
 	</xsl:template>
 	
+	<!-- ignore change tracking -->
+	<xsl:template match="text:changed-region"/>
+	
 	<xsl:template match="text:a">
 		<xsl:element name="ref">
 			<xsl:apply-templates select="@*"/>
