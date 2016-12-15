@@ -207,7 +207,7 @@ tei:p[@rend='location'] -> tei:msDesc/tei:msIdentiier/tei:idno
 					</xsl:choose>
 				</xsl:if>
 			</xsl:variable>
-			<xsl:if test="$keywords">
+			<xsl:if test="normalize-space($keywords)">
 				<keywords scheme="#features">
 					<xsl:copy-of select="$keywords"/>
 				</keywords>
