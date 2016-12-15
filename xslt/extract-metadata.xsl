@@ -36,7 +36,16 @@ tei:p[@rend='location'] -> tei:msDesc/tei:msIdentiier/tei:idno
 		concat(
 			substring(
 				string-join(
-					(/tei:TEI/tei:text/tei:body/tei:p[not(@xml:lang='de')][normalize-space()])[position()&lt;6]/node()[not(self::tei:note)], 
+					(/tei:TEI/tei:text/tei:body/tei:p
+						[not(@xml:lang='de')]
+						[not(	@rend=(
+							'Progress%20note',
+							'location'
+						))]
+						[normalize-space()]
+					)
+					[position()&lt;6]
+						/node()[not(self::tei:note)], 
 					' ¶ '
 				),
 				1, 
@@ -105,6 +114,9 @@ tei:p[@rend='location'] -> tei:msDesc/tei:msIdentiier/tei:idno
 		<xsl:copy>
 			<xsl:copy-of select="@* | node()"/>
 			<xsl:element name="classDecl">
+				<taxonomy xml:id="status">
+					<bibl>Status</bibl>
+				</taxonomy>
 				<xsl:if test="$plant-names">
 					<xsl:element name="taxonomy">
 						<xsl:attribute name="xml:id">plant-names</xsl:attribute>
@@ -126,6 +138,15 @@ tei:p[@rend='location'] -> tei:msDesc/tei:msIdentiier/tei:idno
 	<xsl:template match="tei:textClass">
 		<xsl:copy>
 			<xsl:copy-of select="@* | node()"/>
+			<keywords scheme="#status">
+				<xsl:choose>
+					<xsl:when test="matches(
+						/tei:TEI/tei:teiHeader/tei:fileDesc/tei:publicationStmt/tei:idno[@type='filename'],
+						'-final.doc$'
+					)"><term>final</term></xsl:when>
+					<xsl:otherwise><term>not final</term></xsl:otherwise>
+				</xsl:choose>
+			</keywords>
 			<xsl:if test="$plant-names">
 				<keywords scheme="#plant-names">
 					<xsl:for-each select="$plant-names">
@@ -133,7 +154,7 @@ tei:p[@rend='location'] -> tei:msDesc/tei:msIdentiier/tei:idno
 					</xsl:for-each>
 				</keywords>
 			</xsl:if>
-			<!-- tag the documents which contain tables or figures -->
+			<!-- tag the documents by miscellaneous features; tables, figures, notes, etc -->
 			<xsl:variable name="keywords">
 				<xsl:if test="exists(//tei:table)"><term>table</term></xsl:if>
 				<xsl:if test="exists(//tei:note)"><term>note</term></xsl:if>
@@ -151,30 +172,40 @@ tei:p[@rend='location'] -> tei:msDesc/tei:msIdentiier/tei:idno
 							tei:space 	[@dim='horizontal'] [@extent='tab']
 								/preceding-sibling::text( )[normalize-space()]
 					]
-				"><term>tab alignment</term></xsl:if> 
-				<!-- "uneven tabulation" is when a text uses tab alignment, but
-				the number of tab characters used varies from one para to the next -->
-				<xsl:if test="
-					//tei:p[
-						tei:space 	[@dim='horizontal'] [@extent='tab']
-							/preceding-sibling::text( )[normalize-space()]
-					]
-					[
-						preceding-sibling::*[1]/self::tei:p/
-							tei:space 	[@dim='horizontal'] [@extent='tab']
-								/preceding-sibling::text( )[normalize-space()]
-					]
-					[
-						count(
-							tei:space 	[@dim='horizontal'] [@extent='tab']
-								/preceding-sibling::text( )[normalize-space()]
-						) != count(
-							preceding-sibling::*[1]/self::tei:p/
-								tei:space 	[@dim='horizontal'] [@extent='tab']
-									/preceding-sibling::text( )[normalize-space()]
-						)
-					]
-				"><term>uneven tabulation</term></xsl:if> 				
+				"><term>tab alignment</term> 
+					<!-- "uneven tabulation" is when a text uses tab alignment, but
+					the number of tab characters used varies from one para to the next -->
+					<xsl:choose>
+						<xsl:when test="
+							//tei:p[
+								tei:space
+									[@dim='horizontal']
+									[@extent='tab']
+									[preceding-sibling::text()[normalize-space()]]
+							]
+							[
+								following-sibling::*[1]/self::tei:p/tei:space
+									[@dim='horizontal']
+									[@extent='tab']
+									[preceding-sibling::text()[normalize-space()]]
+							]
+							[
+								count(
+									tei:space
+										[@dim='horizontal']
+										[@extent='tab']
+										[preceding-sibling::text()[normalize-space()]]
+								) != count(
+									following-sibling::*[1]/self::tei:p/tei:space
+										[@dim='horizontal']
+										[@extent='tab']
+										[preceding-sibling::text()[normalize-space()]]
+								)
+							]
+						"><term>uneven tabulation</term></xsl:when>
+						<xsl:otherwise><term>even tabulation</term></xsl:otherwise>
+					</xsl:choose>
+				</xsl:if>
 			</xsl:variable>
 			<xsl:if test="$keywords">
 				<keywords scheme="#features">
@@ -220,7 +251,7 @@ tei:p[@rend='location'] -> tei:msDesc/tei:msIdentiier/tei:idno
 			<bibl>
 				<xsl:copy-of select="$authors"/>
 				<title><xsl:value-of select="$title"/></title>
-				<xsl:variable name="date-regex">([1-9]\d)-(\d\d)-(\d\d)</xsl:variable><!-- yy-mm-dd -->
+				<xsl:variable name="date-regex">([1-9]\d)-(\d\d)-(\d\d)[^/]*</xsl:variable><!-- yy-mm-dd in the last (file) component -->
 				<xsl:analyze-string select="/tei:TEI/tei:teiHeader/tei:fileDesc/tei:publicationStmt/tei:idno[@type='filename']" regex="{$date-regex}">
 					<xsl:matching-substring>
 						<xsl:variable name="year" select="regex-group(1)"/>

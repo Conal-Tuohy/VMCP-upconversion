@@ -180,7 +180,7 @@
 			<p:identity name="styles-and-content"/>
 			<p:xslt name="p5">
 				<p:documentation>convert the OpenDocument file into TEI</p:documentation>
-				<p:with-param name="file-name" select="concat($path-name, '/', replace($file-name, 'odt', 'doc'))"/>
+				<p:with-param name="file-name" select="concat('data', $path-name, '/', replace($file-name, 'odt', 'doc'))"/>
 				<p:input port="stylesheet">
 					<p:document href="../xslt/odt-styles-and-content-to-tei.xsl"/>
 				</p:input>
@@ -199,6 +199,13 @@
 					<p:document href="../xslt/encode-translations.xsl"/>
 				</p:input>
 			</p:xslt>
+			<p:xslt name="semantic-tei">
+				<p:documentation>upconvert styles to semantic TEI elements</p:documentation>
+				<p:input port="parameters"><p:empty/></p:input>
+				<p:input port="stylesheet">
+					<p:document href="../xslt/tei-styled-text-to-semantic-markup.xsl"/>
+				</p:input>
+			</p:xslt>
 			<p:xslt name="metadata-extracted">
 				<p:documentation>find metadata in text and insert in header</p:documentation>
 				<p:input port="parameters"><p:empty/></p:input>
@@ -211,13 +218,6 @@
 				<p:input port="parameters"><p:empty/></p:input>
 				<p:input port="stylesheet">
 					<p:document href="../xslt/tei-add-lang-usage.xsl"/>
-				</p:input>
-			</p:xslt>
-			<p:xslt name="semantic-tei">
-				<p:documentation>upconvert styles to semantic TEI elements</p:documentation>
-				<p:input port="parameters"><p:empty/></p:input>
-				<p:input port="stylesheet">
-					<p:document href="../xslt/tei-styled-text-to-semantic-markup.xsl"/>
 				</p:input>
 			</p:xslt>
 			<!--

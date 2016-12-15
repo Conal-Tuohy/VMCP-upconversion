@@ -19,7 +19,7 @@ space[@unit='chars'][@quantity]
 -->
 	<!-- an empty para is just a line break -->
 	<xsl:template match="tei:p[not(normalize-space())]" priority="100">
-		<lb/>
+		<space dim="vertical" unit="lines" quantity="1"/>
 	</xsl:template>
 	
 	<!-- match a p carrying the first part of a valediction -->
