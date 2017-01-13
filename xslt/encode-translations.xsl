@@ -27,6 +27,8 @@ style names as the remainder of the style name will then identify the semantics 
 				</xsl:when>
 				<xsl:otherwise>
 					<!-- paragraph in text not containing any translations, or paragraph trailing last translation -->
+					<!-- assumed to be in English -->
+					<xsl:attribute name="xml:lang">en</xsl:attribute>
 				</xsl:otherwise>
 			</xsl:choose>
 			<xsl:apply-templates/>

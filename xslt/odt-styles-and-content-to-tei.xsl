@@ -7,7 +7,8 @@
 	xmlns:dc="http://purl.org/dc/elements/1.1/"
 	xmlns:draw="urn:oasis:names:tc:opendocument:xmlns:drawing:1.0" 
 	xmlns="http://www.tei-c.org/ns/1.0"
-	exclude-result-prefixes="style text office fo dc draw">
+	xmlns:table="urn:oasis:names:tc:opendocument:xmlns:table:1.0" 
+	exclude-result-prefixes="style text office fo dc draw table">
 	<xsl:param name="file-name"/>
 	<xsl:template match="/odt">
 		<TEI>
@@ -63,6 +64,20 @@
 				</body>
 			</text>
 		</TEI>
+	</xsl:template>
+	
+	<!-- ignore change tracking -->
+	<xsl:template match="text:changed-region"/>
+	
+	<xsl:template match="text:a">
+		<xsl:element name="ref">
+			<xsl:apply-templates select="@*"/>
+			<xsl:apply-templates/>
+		</xsl:element>
+	</xsl:template>
+	
+	<xsl:template match="@xlink:href" xmlns:xlink="http://www.w3.org/1999/xlink">
+		<xsl:attribute name="target"  select="."/>
 	</xsl:template>
 	
 	<xsl:template match="text:p">
@@ -122,6 +137,16 @@
 	<xsl:template match="@text:note-class">
 		<xsl:attribute name="type"><xsl:value-of select="."/></xsl:attribute>
 	</xsl:template>
+	<xsl:template match="@*" mode="style-name">
+		<xsl:analyze-string select="." regex="_(..)_">
+			<xsl:matching-substring>
+				<xsl:value-of select="concat('%', regex-group(1))"/>
+			</xsl:matching-substring>
+			<xsl:non-matching-substring>
+				<xsl:value-of select="."/>
+			</xsl:non-matching-substring>
+		</xsl:analyze-string>
+	</xsl:template>
 	<xsl:template match="@text:style-name">
 		<!-- TODO capture all style information as CSS -->
 		<!-- automatic styles CSS should be encoded @as tei:style, common styles as tei:rendition -->
@@ -131,15 +156,15 @@
 		style's parent style's name, if it has one -->
 		<xsl:variable name="automatic-style" select="key('automatic-styles-by-name', .)"/>
 		<xsl:choose>
-			<xsl:when test="$automatic-style">
+			<xsl:when test="exists($automatic-style)">
 				<!-- "automatic" style is just an anonymous style based on a real ("common") style which is its "parent" -->
 				<xsl:for-each select="$automatic-style/@style:parent-style-name">
-					<xsl:attribute name="rend"><xsl:value-of select="."/></xsl:attribute>
+					<xsl:attribute name="rend"><xsl:apply-templates mode="style-name" select="."/></xsl:attribute>
 				</xsl:for-each>
 			</xsl:when>
 			<xsl:otherwise>
 				<!-- no automatic style of that name - it's a "common" (i.e. named) style -->
-				<xsl:attribute name="rend"><xsl:value-of select="."/></xsl:attribute>
+				<xsl:attribute name="rend"><xsl:apply-templates mode="style-name" select="."/></xsl:attribute>
 			</xsl:otherwise>
 		</xsl:choose>
 		<xsl:variable name="style" select="
@@ -156,7 +181,7 @@
 		<xsl:param name="style"/>
 		<xsl:param name="existing-attributes" select="/.."/>
 		<xsl:variable name="existing-attribute-names" select="for $attribute in $existing-attributes return local-name($attribute)"/>
-		<xsl:variable name="formatting-attributes" select="$style/*/@fo:*"/>
+		<xsl:variable name="formatting-attributes" select="$style/*/@fo:* | $style/*/@style:font-name"/>
 		<xsl:variable name="combined-attributes" select="
 			$existing-attributes | 
 			$formatting-attributes[not(local-name(.) = $existing-attribute-names)]
@@ -178,9 +203,10 @@
 	</xsl:template>
 
 	<!-- render a formatting objects atribute as a CSS property -->
-	<xsl:template match="@fo:*">
+	<xsl:template match="@fo:*  | @style:font-name">
 		<xsl:value-of select="concat(local-name(.), ': ', ., '; ')"/>
 	</xsl:template>
+	
 	<!-- formatting objects attributes without a corresponding CSS property -->
 	<xsl:template match="@fo:language | @fo:country"/>
 	<!-- unwanted CSS properties -->
@@ -223,6 +249,33 @@
 			<xsl:attribute name="unit">chars</xsl:attribute>
 			<xsl:attribute name="quantity"><xsl:value-of select="(@text:c, 1)[1]"/></xsl:attribute>
 		</xsl:element>
+	</xsl:template>
+	
+	<xsl:template match="table:table">
+		<xsl:element name="table">
+			<xsl:attribute name="n" select="@table:name"/>
+			<!-- TODO table style-name -->
+			<xsl:apply-templates/>
+		</xsl:element>
+	</xsl:template>
+	
+	<xsl:template match="table:table-row">
+		<xsl:element name="row">
+			<!-- TODO table style-name -->
+			<xsl:apply-templates/>
+		</xsl:element>
+	</xsl:template>
+	
+	<xsl:template match="table:table-cell">
+		<xsl:element name="cell">
+			<!-- TODO table style-name -->
+			<xsl:apply-templates select="@table:number-columns-spanned"/>
+			<xsl:apply-templates/>
+		</xsl:element>
+	</xsl:template>
+	
+	<xsl:template match="@table:number-columns-spanned">
+		<xsl:attribute name="cols" select="."/>
 	</xsl:template>
 		
 </xsl:stylesheet>
