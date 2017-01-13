@@ -11,14 +11,19 @@
 	xmlns:xs="http://www.w3.org/2001/XMLSchema">
 	<p:import href="http://xmlcalabash.com/extension/steps/library-1.0.xpl"/>
 	<p:import href="recursive-directory-list.xpl"/>
+	<p:option name="input-root-folder" required="true"/><!-- select=" 'doc' "/>-->
+	<p:option name="output-root-folder" select=" 'odt' "/>
+	<p:option name="output-shell-script" required="true"/>
 <!--
 convert-to docx - -outdir "docx/no date letters" "doc/no date letters/Macdonald00-00-00Teucrium.doc"
 -->
-	<l:recursive-directory-list path="../doc" name="document-tree"/>
-	<p:delete match="c:file[not(ends-with(@name, '.doc') or ends-with(@name, '.DOC'))]"/>
+	<l:recursive-directory-list name="document-tree">
+		<p:with-option name="path" select="$input-root-folder"/>
+	</l:recursive-directory-list>
+	<p:delete match="c:file[not(ends-with(@name, '.doc') or ends-with(@name, '.DOC')) or starts-with(@name, '.')]"/>
 	<p:xslt name="conversions">
-		<p:with-param name="output-root-folder" select=" 'odt' "/>
-		<p:with-param name="input-root-folder" select=" 'doc' "/>
+		<p:with-param name="output-root-folder" select="$output-root-folder"/>
+		<p:with-param name="input-root-folder" select="$input-root-folder"/>
 		<p:input port="stylesheet">
 			<p:inline>
 				<xsl:stylesheet version="2.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform" xmlns:c="http://www.w3.org/ns/xproc-step" >
@@ -89,5 +94,7 @@ convert-to docx - -outdir "docx/no date letters" "doc/no date letters/Macdonald0
 			<p:pipe step="document-tree" port="result"/>
 		</p:input>
 	</p:identity>	-->
-	<p:store href="../convert-all.sh" media-type="text/plain" method="text"/>
+	<p:store media-type="text/plain" method="text">
+		<p:with-option name="href" select="$output-shell-script"/>
+	</p:store>
 </p:declare-step>
