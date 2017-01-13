@@ -12,7 +12,7 @@
 	<p:import href="http://xmlcalabash.com/extension/steps/library-1.0.xpl"/>
 	<p:import href="recursive-directory-list.xpl"/>
 	<p:option name="input-root-folder" required="true"/><!-- select=" 'doc' "/>-->
-	<p:option name="output-root-folder" select=" 'odt' "/>
+	<p:option name="output-root-folder" required="true"/>
 	<p:option name="output-shell-script" required="true"/>
 <!--
 convert-to docx - -outdir "docx/no date letters" "doc/no date letters/Macdonald00-00-00Teucrium.doc"
@@ -68,20 +68,22 @@ convert-to docx - -outdir "docx/no date letters" "doc/no date letters/Macdonald0
 						<xsl:text>fi&#xA;</xsl:text>
 					</xsl:template>
 					<xsl:template match="c:directory">
-						<xsl:text>mkdir "</xsl:text>
-						<xsl:value-of select="
-								string-join(
-									(
-										$output-root-folder, 
-										ancestor-or-self::c:directory[parent::c:directory]/@name
-									),
-									'/'
-								)
-						"/>
-						<xsl:text>"&#xA;</xsl:text>
-						<xsl:apply-templates>
-							<xsl:sort select="@name"/>
-						</xsl:apply-templates>
+						<xsl:if test="not(starts-with(@name, '.'))">
+							<xsl:text>mkdir "</xsl:text>
+							<xsl:value-of select="
+									string-join(
+										(
+											$output-root-folder, 
+											ancestor-or-self::c:directory[parent::c:directory]/@name
+										),
+										'/'
+									)
+							"/>
+							<xsl:text>"&#xA;</xsl:text>
+							<xsl:apply-templates>
+								<xsl:sort select="@name"/>
+							</xsl:apply-templates>
+						</xsl:if>
 					</xsl:template>
 				</xsl:stylesheet>
 			</p:inline>
