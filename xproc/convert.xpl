@@ -57,13 +57,21 @@ convert-to docx - -outdir "docx/no date letters" "doc/no date letters/Macdonald0
 									'/'
 								)
 						"/>
-						<xsl:text>if [ ! -f "</xsl:text>
+						<!-- http://tldp.org/LDP/Bash-Beginners-Guide/html/sect_07_01.html -->
+						<xsl:text>if [ "</xsl:text>
+						<xsl:value-of select="concat($input-root-folder, '/', $input-file)"/>
+						<xsl:text>" -nt "</xsl:text>
 						<xsl:value-of select="concat($output-root-folder, '/', $output-file)"/>
 						<xsl:text>" ]; then&#xA;</xsl:text>
 						<xsl:text>	libreoffice --headless --convert-to odt --outdir "</xsl:text>
 						<xsl:value-of select="$output-folder"/>
 						<xsl:text>" "</xsl:text>
 						<xsl:value-of select="concat($input-root-folder, '/', $input-file)"/>
+						<xsl:text>"&#xA;</xsl:text>
+						<xsl:text>touch -r "</xsl:text>
+						<xsl:value-of select="concat($input-root-folder, '/', $input-file)"/>
+						<xsl:text>" "</xsl:text>
+						<xsl:value-of select="concat($output-root-folder, '/', $output-file)"/>
 						<xsl:text>"&#xA;</xsl:text>
 						<xsl:text>fi&#xA;</xsl:text>
 					</xsl:template>
