@@ -160,6 +160,9 @@ tei:p[@rend='location'] -> tei:msDesc/tei:msIdentiier/tei:idno
 				<xsl:if test="exists(//tei:note)"><term>note</term></xsl:if>
 				<xsl:if test="exists(//tei:figure)"><term>figure</term></xsl:if>
 				<xsl:if test="exists(//tei:ref)"><term>hyperlink</term></xsl:if>
+				<!-- complex tables -->
+				<xsl:if test="exists(//tei:cell[@rows])"><term>multi-row cell</term></xsl:if>
+				<xsl:if test="exists(//tei:cell[@cols])"><term>multi-column cell</term></xsl:if>
 				<!-- "tab alignment" is when a text includes two paragraphs in a row
 				which contain a tab which is not the start of the para -->
 				<xsl:if test="

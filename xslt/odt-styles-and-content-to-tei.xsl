@@ -269,7 +269,7 @@
 	<xsl:template match="table:table-cell">
 		<xsl:element name="cell">
 			<!-- TODO table style-name -->
-			<xsl:apply-templates select="@table:number-columns-spanned"/>
+			<xsl:apply-templates select="@table:number-columns-spanned | @table:number-rows-spanned"/>
 			<xsl:apply-templates/>
 		</xsl:element>
 	</xsl:template>
@@ -277,5 +277,8 @@
 	<xsl:template match="@table:number-columns-spanned">
 		<xsl:attribute name="cols" select="."/>
 	</xsl:template>
-		
+	
+	<xsl:template match="@table:number-rows-spanned">
+		<xsl:attribute name="rows" select="."/>
+	</xsl:template>		
 </xsl:stylesheet>
