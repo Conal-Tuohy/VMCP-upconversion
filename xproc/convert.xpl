@@ -35,7 +35,7 @@ convert-to docx - -outdir "docx/no date letters" "doc/no date letters/Macdonald0
 					<xsl:template match="/c:directory">
 						<bash>
 							<xsl:text>#!/bin/bash&#xA;</xsl:text>
-							<xsl:text>mkdir "</xsl:text>
+							<xsl:text>mkdir -p "</xsl:text>
 							<xsl:value-of select="$output-root-folder"/>
 							<xsl:text>"&#xA;</xsl:text>
 							<xsl:apply-templates>
@@ -77,7 +77,7 @@ convert-to docx - -outdir "docx/no date letters" "doc/no date letters/Macdonald0
 					</xsl:template>
 					<xsl:template match="c:directory">
 						<xsl:if test="not(starts-with(@name, '.'))">
-							<xsl:text>mkdir "</xsl:text>
+							<xsl:text>mkdir -p "</xsl:text>
 							<xsl:value-of select="
 									string-join(
 										(
