@@ -202,6 +202,13 @@
 		</xsl:choose>
 	</xsl:template>
 
+	<!-- Wrap underlined elements in hi tags (DR)-->
+	<xsl:variable name="underline-style-name" select="/odt/*:document-content/*:automatic-styles/*:style[*:text-properties/@*:text-underline-style]/@*:name[1]" />
+	<xsl:template match="//text:span[@text:style-name=$underline-style-name][not(normalize-space(text())='')]/text()" priority="5">
+		<xsl:message>In style match. Style name: {$underline-style-name}</xsl:message>
+		<hi><xsl:value-of select="." /></hi>
+	</xsl:template>
+
 	<!-- render a formatting objects atribute as a CSS property -->
 	<xsl:template match="@fo:*  | @style:font-name">
 		<xsl:value-of select="concat(local-name(.), ': ', ., '; ')"/>
