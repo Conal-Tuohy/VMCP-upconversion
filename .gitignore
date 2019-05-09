@@ -7,3 +7,4 @@
 # ignore jEdit's backup files
 *.???~
 
+/xproc/transformed
