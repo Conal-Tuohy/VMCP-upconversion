@@ -60,8 +60,23 @@ tei:p[@rend='location'] -> tei:msDesc/tei:msIdentiier/tei:idno
 		<xsl:variable name="text" select="string-join($correspondent/text(), ' ')"/><!-- ignoring any notes -->
 		<xsl:variable name="correspondent" select="//tei:p[@rend='correspondent'][normalize-space()]"/>
 		<xsl:variable name="text" select="string-join($correspondent/text(), ' ')"/><!-- ignoring any notes -->
+		
+		<!-- Regex to check for a "mentions" letter -->
+		<xsl:variable name="mentions-regex">^\s*(From)?\s*(.+)\s+(to)\s+(.+)</xsl:variable>
+
 		<xsl:element name="author">
 			<xsl:choose>
+				<!-- Ferdinand von Mueller is neither the author nor the recipient the 
+					correspondent line will generally take the format From X to Y
+				 -->
+				<xsl:when test="matches($text, $mentions-regex)">
+					<xsl:analyze-string select="." regex="$mentions-regex">
+						<xsl:matching-substring>
+							<xsl:value-of select="normalize-space(regex-group(2))"></xsl:value-of>
+						</xsl:matching-substring>
+					</xsl:analyze-string>
+				</xsl:when>
+
 				<xsl:when test="starts-with($text, 'From ')">
 					<xsl:value-of select="substring-after($text, 'From ')"/>
 				</xsl:when>
