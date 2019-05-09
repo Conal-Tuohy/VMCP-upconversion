@@ -204,8 +204,13 @@
 
 	<!-- Wrap underlined elements in hi tags (DR)-->
 	<xsl:variable name="underline-style-name" select="/odt/*:document-content/*:automatic-styles/*:style[*:text-properties/@*:text-underline-style]/@*:name" />
-	<xsl:template match="//text:span[@text:style-name=$underline-style-name][not(normalize-space(text())='')]/text()" priority="5">
-		<hi><xsl:value-of select="." /></hi>
+	<xsl:template match="//text:span[@text:style-name=$underline-style-name]/text()" priority="5">
+		<xsl:if test="not(normalize-space(.)='')">
+			<hi><xsl:value-of select="." /></hi>
+		</xsl:if>
+		<xsl:if test="normalize-space(.)=''">
+			<xsl:value-of select="." />
+		</xsl:if>
 	</xsl:template>
 
 	<!-- render a formatting objects atribute as a CSS property -->
