@@ -7,6 +7,10 @@
 # ignore jEdit's backup files
 *.???~
 
+<<<<<<< HEAD
 /xproc/transformed
 
 .DS_Store
+=======
+/xproc/transformed
+>>>>>>> proofing
