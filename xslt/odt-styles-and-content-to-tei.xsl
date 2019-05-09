@@ -206,7 +206,7 @@
 	<xsl:variable name="underline-style-name" select="/odt/*:document-content/*:automatic-styles/*:style[*:text-properties/@*:text-underline-style]/@*:name" />
 	<xsl:template match="//text:span[@text:style-name=$underline-style-name]/text()" priority="5">
 		<xsl:if test="not(normalize-space(.)='')">
-			<hi><xsl:value-of select="." /></hi>
+			<hi rend="underline"><xsl:value-of select="." /></hi>
 		</xsl:if>
 		<xsl:if test="normalize-space(.)=''">
 			<xsl:value-of select="." />
