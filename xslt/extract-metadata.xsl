@@ -61,13 +61,13 @@ Pulls metadata elements from the text into the teiHeader tei:p[@rend='correspond
 					correspondent line will generally take the format From X to Y
 				 -->
 				<xsl:when test="matches($text, $mentions-regex)">
-					<xsl:analyze-string select="." regex="$mentions-regex">
+					<xsl:analyze-string select="$text" regex="{$mentions-regex}">
 						<xsl:matching-substring>
-							<xsl:value-of select="normalize-space(regex-group(2))"></xsl:value-of>
+							<xsl:text>Matching</xsl:text>
+							<xsl:value-of select="normalize-space(regex-group(2))" />
 						</xsl:matching-substring>
 					</xsl:analyze-string>
 				</xsl:when>
-
 				<xsl:when test="starts-with($text, 'From ')">
 					<xsl:value-of select="substring-after($text, 'From ')"/>
 				</xsl:when>
@@ -107,16 +107,14 @@ Pulls metadata elements from the text into the teiHeader tei:p[@rend='correspond
 					correspondent line will generally take the format From X to Y
 				 -->
 						<xsl:when test="matches($text, $mentions-regex)">
-							<xsl:analyze-string select="." regex="$mentions-regex">
+							<xsl:analyze-string select="$text" regex="{$mentions-regex}">
 								<xsl:matching-substring>
 									<name>
-										<xsl:value-of select="normalize-space(regex-group(4))"></xsl:value-of>
-										<xsl:text>Recipient</xsl:text>
+										<xsl:value-of select="normalize-space(regex-group(4))" />
 									</name>
 								</xsl:matching-substring>
 							</xsl:analyze-string>
 						</xsl:when>
-
 						<xsl:when test="starts-with($text, 'To ')">
 							<name>
 								<xsl:value-of select="substring-after($text, 'To ')"/>
