@@ -109,7 +109,10 @@ Pulls metadata elements from the text into the teiHeader tei:p[@rend='correspond
 						<xsl:when test="matches($text, $mentions-regex)">
 							<xsl:analyze-string select="." regex="$mentions-regex">
 								<xsl:matching-substring>
-									<xsl:value-of select="normalize-space(regex-group(4))"></xsl:value-of>
+									<name>
+										<xsl:value-of select="normalize-space(regex-group(4))"></xsl:value-of>
+										<xsl:text>Recipient</xsl:text>
+									</name>
 								</xsl:matching-substring>
 							</xsl:analyze-string>
 						</xsl:when>
