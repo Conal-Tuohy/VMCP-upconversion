@@ -120,12 +120,36 @@
 	</xsl:template>
 	
 	<xsl:template match="text:note">
+		<xsl:variable name="footnote-number">
+
+		</xsl:variable>
+
 		<xsl:element name="note">
+			<!-- Additional code added here to deal with the possibility of note-citation note appearing in the odt -->
+			<xsl:variable name="calc-footnote-number">
+				<xsl:analyze-string select="@text:id" regex="\d+$">
+					<xsl:matching-substring>
+						<xsl:value-of select='.' />
+					</xsl:matching-substring>
+				</xsl:analyze-string>
+			</xsl:variable>
+
 			<xsl:apply-templates select="@*"/>
-			<xsl:apply-templates select="text:note-citation"/>
+
+			<!-- If the text citation field is empty use the calculated footnote number extracted from the text:id attribute -->
+			<xsl:choose>
+				<xsl:when test="not(matches(text:note-citation, '\d+'))">
+					<xsl:attribute name="n" select="$calc-footnote-number"></xsl:attribute>
+				</xsl:when>
+				<xsl:otherwise>
+					<xsl:apply-templates select="text:note-citation"/>
+				</xsl:otherwise>
+			</xsl:choose>
+			
 			<xsl:apply-templates select="text:note-body"/>
 		</xsl:element>
 	</xsl:template>
+
 	<xsl:template match="text:note-citation">
 		<xsl:attribute name="n"><xsl:value-of select="."/></xsl:attribute>
 	</xsl:template>
