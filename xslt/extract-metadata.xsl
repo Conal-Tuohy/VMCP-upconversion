@@ -102,7 +102,7 @@ Pulls metadata elements from the text into the teiHeader tei:p[@rend='correspond
 					<xsl:variable name="mentions-regex">^\s*(From)?\s*(.+)\s+(to)\s+(.+)</xsl:variable>
 
 					<xsl:choose>
-						<!-- Ferdinand von Mueller is neither the author nor the recipient the 
+						<!-- If Ferdinand von Mueller is neither the author nor the recipient the 
 					correspondent line will generally take the format From X to Y
 				 -->
 						<xsl:when test="matches($text, $mentions-regex)">
