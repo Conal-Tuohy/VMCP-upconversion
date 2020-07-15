@@ -27,7 +27,13 @@ Pulls metadata elements from the text into the teiHeader tei:p[@rend='correspond
 		<xsl:copy-of select="$authors"/>
 	</xsl:template>
 
-	<xsl:variable name="title" select=" concat( substring( string-join( (/tei:TEI/tei:text/tei:body/tei:p [not(@xml:lang='de')] [not( @rend=(
+	<xsl:variable name="title" select="
+		 concat( 
+			substring( 
+				string-join( 
+					(/tei:TEI/tei:text/tei:body/tei:p 
+						[not(@xml:lang='de')] 
+						[not( @rend=(
 							'Progress%20note',
 							'location'
 						))]
@@ -250,9 +256,9 @@ Pulls metadata elements from the text into the teiHeader tei:p[@rend='correspond
 							<xsl:matching-substring>
 								<xsl:variable name="hex" select=" '0123456789abcdef' "/>
 								<xsl:variable name="decimal" select="
-								string-length(substring-before($hex, regex-group(1))) * 16 +
-								string-length(substring-before($hex, regex-group(2)))
-							"/>
+									string-length(substring-before($hex, regex-group(1))) * 16 +
+									string-length(substring-before($hex, regex-group(2)))
+								"/>
 								<xsl:value-of select="codepoints-to-string($decimal)"/>
 							</xsl:matching-substring>
 							<xsl:non-matching-substring>
