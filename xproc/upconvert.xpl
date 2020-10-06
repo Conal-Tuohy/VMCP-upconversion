@@ -213,6 +213,13 @@
 					<p:document href="../xslt/extract-metadata.xsl"/>
 				</p:input>
 			</p:xslt>
+			<p:xslt name="mark-up-names">
+				<p:documentation>find and mark up taxonomic names where they appear in the transcript text</p:documentation>
+				<p:input port="parameters"><p:empty/></p:input>
+				<p:input port="stylesheet">
+					<p:document href="../xslt/mark-up-names.xsl"/>
+				</p:input>
+			</p:xslt>
 			<p:xslt name="language-usage-metrics">
 				<p:documentation>Measure usage of English and German</p:documentation>
 				<p:input port="parameters"><p:empty/></p:input>
@@ -268,12 +275,14 @@
 				<p:with-option name="href" select="concat($output-directory, $output-file-uri-component)"/>
 			</p:store>
 			<!-- save ODT content+style file for reference -->
+<!--
 			<p:store indent="true">
 				<p:with-option name="href" select="concat($input-directory, $output-file-uri-component)"/>
 				<p:input port="source">
 					<p:pipe step="styles-and-content" port="result"/>
 				</p:input>
 			</p:store>
+-->
 		</p:for-each>
 		<p:for-each name="subdirectory">
 			<p:iteration-source select="/c:directory/c:directory">

@@ -1,4 +1,4 @@
-<xsl:stylesheet version="2.0" 
+<xsl:stylesheet version="3.0" 
 	xmlns:xsl="http://www.w3.org/1999/XSL/Transform" 
 	xmlns:tei="http://www.tei-c.org/ns/1.0" 
 	xmlns="http://www.tei-c.org/ns/1.0" exclude-result-prefixes="tei">
@@ -49,14 +49,15 @@ Pulls metadata elements from the text into the teiHeader tei:p[@rend='correspond
 			'...'
 		)
 	"/>
+	
+	<!-- "correspondent" text nodes are those within paras and headings which are styled "correspondent", but excluding text within notes -->
+	<!-- (NB correspondent often includes footnote explaining who the correspondent is) -->
+	<xsl:variable name="correspondent" select="(//tei:p|//tei:ab)[@rend='correspondent']"/>
+	<xsl:variable name="correspondent-text" select="string-join($correspondent//text()[not(ancestor::tei:note)], ' ')"/>
 
 	<xsl:variable name="authors">
-		<xsl:variable name="correspondent" select="//tei:p[@rend='correspondent'][normalize-space()]"/>
-		<xsl:variable name="text" select="string-join($correspondent/text(), ' ')"/>
-		<!-- ignoring any notes -->
-		<xsl:variable name="correspondent" select="//tei:p[@rend='correspondent'][normalize-space()]"/>
-		<xsl:variable name="text" select="string-join($correspondent/text(), ' ')"/>
-		<!-- ignoring any notes -->
+		<!-- TODO deal with any notes -->
+		<!-- NB notes might potentially be attached to an author or an addressee inside the "correspondent" paragraph -->
 
 		<!-- Regex to check for a "mentions" letter -->
 		<xsl:variable name="mentions-regex">^\s*(From)?\s*(.+)\s+(to)\s+(.+)</xsl:variable>
@@ -66,18 +67,18 @@ Pulls metadata elements from the text into the teiHeader tei:p[@rend='correspond
 				<!-- Ferdinand von Mueller is neither the author nor the recipient the 
 					correspondent line will generally take the format From X to Y
 				 -->
-				<xsl:when test="matches($text, $mentions-regex)">
-					<xsl:analyze-string select="$text" regex="{$mentions-regex}">
+				<xsl:when test="matches($correspondent-text, $mentions-regex)">
+					<xsl:analyze-string select="$correspondent-text" regex="{$mentions-regex}">
 						<xsl:matching-substring>
 							<xsl:value-of select="normalize-space(regex-group(2))" />
 						</xsl:matching-substring>
 					</xsl:analyze-string>
 				</xsl:when>
-				<xsl:when test="starts-with($text, 'From ')">
-					<xsl:value-of select="substring-after($text, 'From ')"/>
+				<xsl:when test="starts-with($correspondent-text, 'From ')">
+					<xsl:value-of select="substring-after($correspondent-text, 'From ')"/>
 				</xsl:when>
 				<!-- "correspondent" is a recipient - assume FvM is the sender -->
-				<xsl:when test="starts-with($text, 'To ')">
+				<xsl:when test="starts-with($correspondent-text, 'To ')">
 					<xsl:text>Ferdinand von Mueller</xsl:text>
 				</xsl:when>
 				<xsl:otherwise>
@@ -100,8 +101,6 @@ Pulls metadata elements from the text into the teiHeader tei:p[@rend='correspond
 			<xsl:apply-templates/>
 			<correspDesc>
 				<correspAction type="sentTo">
-					<xsl:variable name="correspondent" select="//tei:p[@rend='correspondent'][normalize-space()]"/>
-					<xsl:variable name="text" select="string-join($correspondent/text(), ' ')"/>
 					<!-- ignoring any notes -->
 
 					<!-- Regex to check for a "mentions" letter -->
@@ -111,8 +110,8 @@ Pulls metadata elements from the text into the teiHeader tei:p[@rend='correspond
 						<!-- If Ferdinand von Mueller is neither the author nor the recipient the 
 					correspondent line will generally take the format From X to Y
 				 -->
-						<xsl:when test="matches($text, $mentions-regex)">
-							<xsl:analyze-string select="$text" regex="{$mentions-regex}">
+						<xsl:when test="matches($correspondent-text, $mentions-regex)">
+							<xsl:analyze-string select="$correspondent-text" regex="{$mentions-regex}">
 								<xsl:matching-substring>
 									<name>
 										<xsl:value-of select="normalize-space(regex-group(4))" />
@@ -120,17 +119,17 @@ Pulls metadata elements from the text into the teiHeader tei:p[@rend='correspond
 								</xsl:matching-substring>
 							</xsl:analyze-string>
 						</xsl:when>
-						<xsl:when test="starts-with($text, 'To ')">
+						<xsl:when test="starts-with($correspondent-text, 'To ')">
 							<name>
-								<xsl:value-of select="substring-after($text, 'To ')"/>
+								<xsl:value-of select="substring-after($correspondent-text, 'To ')"/>
 							</name>
 						</xsl:when>
-						<xsl:when test="starts-with($text, 'From ')">							<!-- "correspondent" is a sender - assume FvM is the recipient -->
+						<xsl:when test="starts-with($correspondent-text, 'From ')">							<!-- "correspondent" is a sender - assume FvM is the recipient -->
 							<name>Ferdinand von Mueller</name>
 						</xsl:when>
 						<xsl:otherwise>
 							<name>
-								<xsl:value-of select="concat($text, '?')"/>
+								<xsl:value-of select="concat($correspondent-text, '?')"/>
 							</name>
 						</xsl:otherwise>
 					</xsl:choose>
@@ -139,7 +138,13 @@ Pulls metadata elements from the text into the teiHeader tei:p[@rend='correspond
 		</xsl:copy>
 	</xsl:template>
 
-	<xsl:variable name="plant-names" select="//tei:p[@rend=('Plant%20names', 'plant%20names')][normalize-space()]"/>
+	<!-- create list of plant names, with punctuation removed -->
+	<xsl:variable name="plant-names" select="
+		for $name in 
+			(//tei:p|//tei:ab)[@rend=('Plant%20names', 'plant%20names')][normalize-space()]
+		return
+			replace($name, '\p{P}', '')
+	"/>
 
 	<xsl:template match="tei:encodingDesc">
 		<xsl:copy>
@@ -148,7 +153,7 @@ Pulls metadata elements from the text into the teiHeader tei:p[@rend='correspond
 				<taxonomy xml:id="status">
 					<bibl>Status</bibl>
 				</taxonomy>
-				<xsl:if test="$plant-names">
+				<xsl:if test="exists($plant-names)">
 					<xsl:element name="taxonomy">
 						<xsl:attribute name="xml:id">plant-names</xsl:attribute>
 						<xsl:element name="bibl">plant names</xsl:element>
@@ -181,17 +186,22 @@ Pulls metadata elements from the text into the teiHeader tei:p[@rend='correspond
 					</xsl:otherwise>
 				</xsl:choose>
 			</keywords>
-			<xsl:if test="$plant-names">
+			<xsl:if test="exists($plant-names)">
 				<keywords scheme="#plant-names">
 					<xsl:for-each select="$plant-names">
-						<term>
-							<xsl:value-of select="."/>
-						</term>
+						<xsl:sort select="string-length(.)" order="descending"/>
+						<term><xsl:value-of select="."/></term>
 					</xsl:for-each>
 				</keywords>
 			</xsl:if>
 			<!-- tag the documents by miscellaneous features; tables, figures, notes, etc -->
 			<xsl:variable name="keywords">
+				<xsl:if test="exists($correspondent//tei:note)">
+					<term>note inside correspondent</term>
+				</xsl:if>
+				<xsl:if test="exists(//tei:ab[@rend='correspondent'])">
+					<term>headings styled as correspondent</term>
+				</xsl:if>
 				<xsl:if test="exists(//tei:table)">
 					<term>table</term>
 				</xsl:if>
@@ -276,12 +286,12 @@ Pulls metadata elements from the text into the teiHeader tei:p[@rend='correspond
 			<xsl:copy-of select="@*"/>
 			<msDesc>
 				<msIdentifier>
-					<xsl:for-each select="//tei:p[@rend='location'][normalize-space()]">
+					<xsl:for-each select="(//tei:p|//tei:ab)[@rend='location'][normalize-space()]">
 						<msName>
 							<xsl:value-of select="."/>
 						</msName>
 					</xsl:for-each>
-					<xsl:for-each select="//tei:p[@rend='number'][normalize-space()]">
+					<xsl:for-each select="(//tei:p|//tei:ab)[@rend='number'][normalize-space()]">
 						<altIdentifier>
 							<idno>
 								<xsl:value-of select="."/>
