@@ -21,7 +21,7 @@ style names as the remainder of the style name will then identify the semantics 
 					<!-- strip the "t-" (translation flag) prefix -->
 					<xsl:attribute name="rend"><xsl:value-of select="substring-after(@rend, 't-')"/></xsl:attribute>
 				</xsl:when>
-				<xsl:when test="following-sibling::tei:p[starts-with(@rend, 't-')]">
+				<xsl:when test="following-sibling::tei:p[starts-with(@rend, 't-')][normalize-space()]">
 					<!-- paragraph preceding a translation is assumed to be the German source text -->
 					<xsl:attribute name="xml:lang">de</xsl:attribute>
 				</xsl:when>
