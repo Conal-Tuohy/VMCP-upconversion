@@ -82,7 +82,7 @@ Pulls metadata elements from the text into the teiHeader tei:p[@rend='correspond
 					<xsl:text>Ferdinand von Mueller</xsl:text>
 				</xsl:when>
 				<xsl:otherwise>
-					<xsl:text>Ferdinand von Mueller?</xsl:text>
+					<xsl:text>Ferdinand von Mueller</xsl:text>
 				</xsl:otherwise>
 			</xsl:choose>
 		</xsl:element>
@@ -129,7 +129,7 @@ Pulls metadata elements from the text into the teiHeader tei:p[@rend='correspond
 						</xsl:when>
 						<xsl:otherwise>
 							<name>
-								<xsl:value-of select="concat($correspondent-text, '?')"/>
+								<xsl:value-of select="$correspondent-text"/>
 							</name>
 						</xsl:otherwise>
 					</xsl:choose>
