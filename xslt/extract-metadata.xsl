@@ -145,7 +145,16 @@ Pulls metadata elements from the text into the teiHeader tei:p[@rend='correspond
 		return
 			replace($name, '\p{P}', '')
 	"/>
-
+	
+	<xsl:variable name="typefaces" select="
+		distinct-values(
+			for $style in 
+				//*/@style[contains(., 'font-family:')]
+			return
+				replace($style, '.*font-family: ([^;]*).*', '$1')
+		)
+	"/>
+	
 	<xsl:template match="tei:encodingDesc">
 		<xsl:copy>
 			<xsl:copy-of select="@* | node()"/>
@@ -153,6 +162,12 @@ Pulls metadata elements from the text into the teiHeader tei:p[@rend='correspond
 				<taxonomy xml:id="status">
 					<bibl>Status</bibl>
 				</taxonomy>
+				<xsl:if test="exists($typefaces)">
+					<xsl:element name="taxonomy">
+						<xsl:attribute name="xml:id">typefaces</xsl:attribute>
+						<xsl:element name="bibl">typefaces</xsl:element>
+					</xsl:element>
+				</xsl:if>
 				<xsl:if test="exists($plant-names)">
 					<xsl:element name="taxonomy">
 						<xsl:attribute name="xml:id">plant-names</xsl:attribute>
@@ -186,6 +201,13 @@ Pulls metadata elements from the text into the teiHeader tei:p[@rend='correspond
 					</xsl:otherwise>
 				</xsl:choose>
 			</keywords>
+			<xsl:if test="exists($typefaces)">
+				<keywords scheme="#typefaces">
+					<xsl:for-each select="$typefaces">
+						<term><xsl:value-of select="."/></term>
+					</xsl:for-each>
+				</keywords>
+			</xsl:if>
 			<xsl:if test="exists($plant-names)">
 				<keywords scheme="#plant-names">
 					<xsl:for-each select="$plant-names">
