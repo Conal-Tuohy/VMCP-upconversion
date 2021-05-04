@@ -171,7 +171,7 @@
 			</xsl:non-matching-substring>
 		</xsl:analyze-string>
 	</xsl:template>
-	<xsl:template match="@text:style-name">
+	<xsl:template match="@text:style-name | @table:style-name">
 		<!-- TODO capture all style information as CSS -->
 		<!-- automatic styles CSS should be encoded @as tei:style, common styles as tei:rendition -->
 		
@@ -304,6 +304,7 @@
 	<xsl:template match="table:table-cell">
 		<xsl:element name="cell">
 			<!-- TODO table style-name -->
+			<xsl:apply-templates select="@table:style-name"/>
 			<xsl:apply-templates select="@table:number-columns-spanned | @table:number-rows-spanned"/>
 			<xsl:apply-templates/>
 		</xsl:element>
