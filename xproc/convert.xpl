@@ -1,6 +1,7 @@
 <p:declare-step version="1.0" 
 	name="convert"
 	type="vmcp:convert"
+	xmlns:pxf="http://exproc.org/proposed/steps/file"
 	xmlns:file="http://exproc.org/proposed/steps/file"
 	xmlns:p="http://www.w3.org/ns/xproc" 
 	xmlns:c="http://www.w3.org/ns/xproc-step" 
@@ -17,6 +18,12 @@
 <!--
 convert-to docx - -outdir "docx/no date letters" "doc/no date letters/Macdonald00-00-00Teucrium.doc"
 -->
+	<pxf:mkdir fail-on-error="false">
+		<p:with-option name="href" select="$input-root-folder"/>
+	</pxf:mkdir>	
+	<pxf:mkdir fail-on-error="false">
+		<p:with-option name="href" select="$output-root-folder"/>
+	</pxf:mkdir>
 	<l:recursive-directory-list name="output-document-tree">
 		<p:with-option name="path" select="$output-root-folder"/>
 	</l:recursive-directory-list>
