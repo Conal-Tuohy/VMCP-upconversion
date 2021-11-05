@@ -1,4 +1,4 @@
-<xsl:stylesheet version="2.0" 
+<xsl:stylesheet version="3.0" 
 	xmlns:xsl="http://www.w3.org/1999/XSL/Transform" 
 	xmlns:style="urn:oasis:names:tc:opendocument:xmlns:style:1.0" 
 	xmlns:text="urn:oasis:names:tc:opendocument:xmlns:text:1.0"
@@ -120,38 +120,12 @@
 	</xsl:template>
 	
 	<xsl:template match="text:note">
-		<xsl:variable name="footnote-number">
-
-		</xsl:variable>
-
 		<xsl:element name="note">
-			<!-- Additional code added here to deal with the possibility of note-citation note appearing in the odt -->
-			<xsl:variable name="calc-footnote-number">
-				<xsl:analyze-string select="@text:id" regex="\d+$">
-					<xsl:matching-substring>
-						<xsl:value-of select='.' />
-					</xsl:matching-substring>
-				</xsl:analyze-string>
-			</xsl:variable>
-
 			<xsl:apply-templates select="@*"/>
-
-			<!-- If the text citation field is empty use the calculated footnote number extracted from the text:id attribute -->
-			<xsl:choose>
-				<xsl:when test="not(matches(text:note-citation, '\d+'))">
-					<xsl:attribute name="n" select="$calc-footnote-number"></xsl:attribute>
-				</xsl:when>
-				<xsl:otherwise>
-					<xsl:apply-templates select="text:note-citation"/>
-				</xsl:otherwise>
-			</xsl:choose>
-			
+			<!-- the note's marker attribute is either taken from the text:note-citation descendant element, if present; otherwise it's the numeric portion of the text:note's @text:id attribute -->
+			<xsl:attribute name="n" select="(.//text:note-citation[not(.='0')], substring-after(@text:id, 'ftn'))[1]"/>
 			<xsl:apply-templates select="text:note-body"/>
 		</xsl:element>
-	</xsl:template>
-
-	<xsl:template match="text:note-citation">
-		<xsl:attribute name="n"><xsl:value-of select="."/></xsl:attribute>
 	</xsl:template>
 	
 	<xsl:template match="@*"/>

@@ -242,6 +242,13 @@
 					<p:document href="../xslt/make-xtf-compatible.xsl"/>
 				</p:input>
 			</p:xslt>
+			<p:xslt name="footnotes-renumbered">
+				<p:documentation>renumber footnotes, which may not have been correctly sequentially numbered because they may be a mixture of OpenOffice footnotes and also manually formatted endnotes</p:documentation>
+				<p:input port="parameters"><p:empty/></p:input>
+				<p:input port="stylesheet">
+					<p:document href="../xslt/renumber-footnotes-sequentially.xsl"/>
+				</p:input>
+			</p:xslt>
 			<p:xslt name="clean-header">
 				<p:documentation>clean up header to remove empty container elements</p:documentation>
 				<p:input port="parameters"><p:empty/></p:input>
