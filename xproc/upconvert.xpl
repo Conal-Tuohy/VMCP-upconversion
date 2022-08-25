@@ -19,10 +19,15 @@
 -->	
 	<p:option name="input-directory" required="true"/>
 	<p:option name="output-directory" required="true"/>
-	<vmcp:convert-directory>
+	<p:option name="temp-directory" select=" '/tmp/' "/>
+	<vmcp:vicflora-names name="vicflora-names">
+		<p:with-option name="temp-directory" select="$temp-directory"/>
+	</vmcp:vicflora-names>
+	<vmcp:convert-directory cx:depends-on="vicflora-names">
 		<p:with-option name="input-directory" select="$input-directory"/>
 		<p:with-option name="output-directory" select="$output-directory"/>
-	</vmcp:convert-directory>		
+		<p:with-option name="temp-directory" select="$temp-directory"/>
+	</vmcp:convert-directory>
 		
 	<p:declare-step name="sorted-directory-list" type="vmcp:directory-list">
 		<p:option name="path"/>
@@ -116,6 +121,7 @@
 	<p:declare-step name="convert-directory" type="vmcp:convert-directory">
 		<p:option name="input-directory" required="true"/>
 		<p:option name="output-directory" required="true"/>
+		<p:option name="temp-directory" required="true"/>
 		<p:option name="path-name" select=" '' "/>
 		<file:mkdir fail-on-error="false">
 			<p:with-option name="href" select="$output-directory"/>
@@ -213,6 +219,13 @@
 					<p:document href="../xslt/extract-metadata.xsl"/>
 				</p:input>
 			</p:xslt>
+			<p:xslt name="resolve-plant-names-with-vicflora">
+				<p:documentation>look plant names up in vicflora</p:documentation>
+				<p:with-param name="plant-names" select="concat($temp-directory, 'vicflora-names.json')"/>
+				<p:input port="stylesheet">
+					<p:document href="../xslt/resolve-plant-names-with-vicflora.xsl"/>
+				</p:input>
+			</p:xslt>
 			<p:xslt name="mark-up-names">
 				<p:documentation>find and mark up taxonomic names where they appear in the transcript text</p:documentation>
 				<p:input port="parameters"><p:empty/></p:input>
@@ -300,8 +313,59 @@
 			<vmcp:convert-directory>
 				<p:with-option name="input-directory" select="concat($input-directory, $directory-uri-component)"/>
 				<p:with-option name="output-directory" select="concat($output-directory, $directory-uri-component)"/>
+				<p:with-option name="temp-directory" select="$temp-directory"/>
 				<p:with-option name="path-name" select="concat($path-name, '/', $directory-name)"/>
 			</vmcp:convert-directory>
 		</p:for-each>
 	</p:declare-step>
+	
+	<p:declare-step name="vicflora-names" type="vmcp:vicflora-names">
+		<p:option name="temp-directory"/>
+		<p:http-request name="graphql-query">
+			<p:input port="source">
+				<p:inline>
+					<c:request method="POST" href="https://vicflora.rbg.vic.gov.au/graphql" override-content-type="text/plain">
+						<c:header name="Accept" value="application/json"/>
+						<c:body content-type="application/json">
+{"query":"query SearchQuery($input: SearchInput!) {\r\n  search(input: $input) {\r\n    meta {\r\n      params {\r\n        q\r\n        fq\r\n        fl\r\n        rows\r\n      }\r\n      pagination {\r\n        lastPage\r\n        total\r\n        currentPage\r\n      }\r\n    }\r\n    docs {\r\n      id\r\n      scientificName\r\n      scientificNameAuthorship\r\n      taxonomicStatus\r\n      acceptedNameUsageId\r\n    }\r\n  }\r\n}\r\n","variables":{"input":{"q":"*:*","fq":"taxonomic_status:(accepted OR homotypicSynonym OR heterotypicSynonym OR synonym)","rows":12000}}}
+						</c:body>
+					</c:request>
+				</p:inline>
+			</p:input>
+		</p:http-request>
+		<p:xslt>
+			<p:input port="parameters"><p:empty/></p:input>
+			<p:input port="stylesheet">
+				<p:inline>
+					<xsl:stylesheet version="3.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform" expand-text="yes"
+						xmlns:c="http://www.w3.org/ns/xproc-step"
+						xmlns:fn="http://www.w3.org/2005/xpath-functions">
+						<xsl:template match="/c:body">
+							<xsl:copy>
+								<xsl:variable name="scientific-name-to-taxon-id-map">
+									<fn:map>
+										<xsl:for-each-group group-by="fn:string[@key='scientificName']" select="
+											json-to-xml(.)
+												/fn:map
+													/fn:map[@key='data']
+														/fn:map[@key='search']
+															/fn:array[@key='docs']
+																/fn:map[fn:string[@key='scientificName']]
+										">
+											<fn:string key="{fn:string[@key='scientificName']}">{fn:string[@key='id']}</fn:string>
+										</xsl:for-each-group>
+									</fn:map>
+								</xsl:variable>
+								<xsl:sequence select="xml-to-json($scientific-name-to-taxon-id-map)"/>
+							</xsl:copy>
+						</xsl:template>
+					</xsl:stylesheet>
+				</p:inline>
+			</p:input>
+		</p:xslt>
+		<p:store method="text" indent="true">
+			<p:with-option name="href" select="concat($temp-directory, 'vicflora-names.json')"/>
+		</p:store>
+	</p:declare-step>
+	
 </p:declare-step>
