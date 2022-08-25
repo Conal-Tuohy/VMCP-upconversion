@@ -16,7 +16,7 @@ echo `date`: Dropbox sync has finished.
 ~/dropbox.py stop
 
 echo `date`: Copying figure image files ...
-mkdir -p /etc/xproc-z/vmcp/figure
+sudo mkdir -p /etc/xproc-z/vmcp/figure
 sudo cp "$HOME/Dropbox/VMCP/images in letters/"*.jpg /etc/xproc-z/vmcp/figure/
 
 echo `date`: Listing Word documents ...
