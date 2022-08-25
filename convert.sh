@@ -15,6 +15,9 @@ done
 echo `date`: Dropbox sync has finished.
 ~/dropbox.py stop
 
+echo `date`: Copying figure image files ...
+sudo cp "$HOME/Dropbox/VMCP/images in letters/"*.jpg /etc/xproc-z/vmcp/figure/
+
 echo `date`: Listing Word documents ...
 # generate conversion bash script
 sudo $XPROC /usr/src/VMCP-upconversion/xproc/convert.xpl input-root-folder=$HOME/Dropbox/VMCP output-root-folder=/usr/src/VMCP-upconversion/odt output-shell-script=$HOME/convert-all.sh
