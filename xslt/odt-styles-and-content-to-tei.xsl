@@ -37,7 +37,7 @@
 					</titleStmt>
 					<!-- The publication statement of the electronic text -->
 					<publicationStmt>
-						<authority>University of Melbourne</authority>
+						<authority>Royal Botanic Gardens Victoria</authority>
 						<idno type="filename"><xsl:value-of select="$file-name"/></idno>
 					</publicationStmt>
 					<sourceDesc>
