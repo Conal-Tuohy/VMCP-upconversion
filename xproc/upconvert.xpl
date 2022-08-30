@@ -191,6 +191,13 @@
 					<p:document href="../xslt/odt-styles-and-content-to-tei.xsl"/>
 				</p:input>
 			</p:xslt>
+			<p:xslt name="move-notes-out-of-metadata">
+				<p:documentation>move notes out of "metadata" paragraphs</p:documentation>
+				<p:input port="parameters"><p:empty/></p:input>
+				<p:input port="stylesheet">
+					<p:document href="../xslt/move-notes-out-of-metadata-paragraphs.xsl"/>
+				</p:input>
+			</p:xslt>
 			<p:xslt name="symbols-in-unicode">
 				<p:documentation>Fix the obsolete "Symbol" encoding</p:documentation>
 				<p:input port="parameters"><p:empty/></p:input>
