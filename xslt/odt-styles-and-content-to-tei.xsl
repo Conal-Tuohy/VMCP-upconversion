@@ -77,7 +77,25 @@
 	</xsl:template>
 	
 	<xsl:template match="@xlink:href" xmlns:xlink="http://www.w3.org/1999/xlink">
-		<xsl:attribute name="target"  select="."/>
+		<!-- NB the LibreOffice converter erroneously adds an extra '../' prefix to every relative URL, which needs to be trimmed off and discarded. -->
+		<!-- Then the residual URL can be normalized by trimming off pairs of ../prefix until there are no more '../' segments -->
+		<xsl:choose>
+			<xsl:when test="matches(., '^(/|[^:]+:)')">
+				<!-- a root-relative URL (starting with "/"), or an absolute URL (starting with a scheme) can be copied without change -->
+				<xsl:attribute name="target"  select="."/>
+			</xsl:when>
+			<xsl:otherwise>
+				<!-- strip off all the "parent" ('../') segments in the URL, and a corresponding number of segments representing 
+				the names of child folders, to minimize the URL length -->
+				<xsl:variable name="components" select="tokenize(., '/')"/>
+				<xsl:variable name="parent-steps-count" select="count($components[.='..'])"/>
+				<xsl:variable name="child-steps" select="$components[.!='..']"/>
+				<xsl:variable name="relative-path" select="$child-steps => subsequence($parent-steps-count) => string-join('/')"/>
+				<!-- since we're transforming .doc files to .xml files, replace the doc extension in the hyperlink to refer to an xml file -->
+				<xsl:variable name="reference" select="replace($relative-path, '(\.doc)$', '.xml')"/>
+				<xsl:attribute name="target"  select="$reference"/>
+			</xsl:otherwise>
+		</xsl:choose>
 	</xsl:template>
 	
 	<xsl:template match="text:p">
