@@ -247,14 +247,6 @@
 					<p:document href="../xslt/tei-add-lang-usage.xsl"/>
 				</p:input>
 			</p:xslt>
-			<!--
-			<p:xslt name="titled">
-				<p:documentation>The letters don't have titles, so here we generate an incipit</p:documentation>
-				<p:input port="parameters"><p:empty/></p:input>
-				<p:input port="stylesheet">
-					<p:document href="../xslt/tei-add-titles.xsl"/>
-				</p:input>
-			</p:xslt>-->
 			<p:xslt name="xtf-compatible">
 				<p:documentation>make changes for XTF compatibility; headings, identifiers, top-level div</p:documentation>
 				<p:input port="parameters"><p:empty/></p:input>
