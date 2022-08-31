@@ -9,17 +9,17 @@
 	<!-- Any notes which are inside these paragraphs will be moved into the body of the letter -->
 	<xsl:variable name="metadata-paragraph-rend-values" select="
 		(
-			'Progress%20note',
+			'progress%20note',
 			'location',
 			'correspondent',
-			'Plant%20names', 
 			'plant%20names',
-			'number'
+			'number',
+			'prelim%20head'
 		)
 	"/>
 	
 	<!-- These are the metadata paragraphs -->
-	<xsl:variable name="metadata" select="(//p | //ab)[@rend=$metadata-paragraph-rend-values]"/>
+	<xsl:variable name="metadata" select="(//p | //ab)[lower-case(@rend)=$metadata-paragraph-rend-values]"/>
 	
 	<!-- These are the notes which appear in metadata paragraphs -->
 	<xsl:variable name="notes-in-metadata" select="$metadata//note"/>
@@ -35,7 +35,7 @@
 		body/*
 			[normalize-space()]
 			[not(@rend=$metadata-paragraph-rend-values)]
-			[not(preceding-sibling::*[normalize-space()][not(@rend=$metadata-paragraph-rend-values)])]
+			[not(preceding-sibling::*[normalize-space()][not(lower-case(@rend)=$metadata-paragraph-rend-values)])]
 	">
 		<xsl:copy>
 			<xsl:copy-of select="@*"/>

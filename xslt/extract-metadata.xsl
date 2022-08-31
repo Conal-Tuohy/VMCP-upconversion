@@ -26,8 +26,12 @@ Pulls metadata elements from the text into the teiHeader tei:p[@rend='correspond
 	<xsl:template match="tei:teiHeader//tei:author[not(normalize-space())]">
 		<xsl:copy-of select="$authors"/>
 	</xsl:template>
-
-	<xsl:variable name="title" select="
+	
+	<xsl:variable name="title" select="($title-paragraph, $incipit)[1]"/>
+	<xsl:variable name="title-paragraph" select="
+		/tei:TEI/tei:text/tei:body/tei:p[lower-case(@rend)='prelim%20head']
+	"/>
+	<xsl:variable name="incipit" select="
 		 concat( 
 			substring( 
 				string-join( 
