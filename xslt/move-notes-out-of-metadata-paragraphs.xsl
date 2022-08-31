@@ -18,28 +18,21 @@
 		)
 	"/>
 	
-	<!-- These are the metadata paragraphs -->
-	<xsl:variable name="metadata" select="(//p | //ab)[lower-case(@rend)=$metadata-paragraph-rend-values]"/>
-	
-	<!-- These are the notes which appear in metadata paragraphs -->
-	<xsl:variable name="notes-in-metadata" select="$metadata//note"/>
-	
 	<!-- don't copy notes which appear in metadata -->
-	<xsl:template match="$notes-in-metadata">
-		<xsl:comment>discarded note</xsl:comment>
-	</xsl:template>
+	<xsl:template match="(//p | //ab)[lower-case(@rend)=$metadata-paragraph-rend-values]//note"/>
 	
 	<!-- Any notes which were removed from metadata paragraphs should be inserted instead
 	as the first children of the first non-whitespace, non-metadata child of the body element -->
 	<xsl:template match="
 		body/*
 			[normalize-space()]
-			[not(@rend=$metadata-paragraph-rend-values)]
+			[not(lower-case(@rend)=$metadata-paragraph-rend-values)]
 			[not(preceding-sibling::*[normalize-space()][not(lower-case(@rend)=$metadata-paragraph-rend-values)])]
 	">
 		<xsl:copy>
 			<xsl:copy-of select="@*"/>
-			<xsl:copy-of select="$notes-in-metadata"/>
+			<!-- These are the notes which originally appeared in metadata paragraphs -->
+			<xsl:copy-of select="(//p | //ab)[lower-case(@rend)=$metadata-paragraph-rend-values]//note"/>
 			<xsl:apply-templates/>
 		</xsl:copy>
 	</xsl:template>

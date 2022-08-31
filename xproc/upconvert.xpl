@@ -293,6 +293,15 @@
 			<p:store indent="true">
 				<p:with-option name="href" select="concat($output-directory, $output-file-uri-component)"/>
 			</p:store>
+			<!-- DEBUGGING CODE for dumping intermediate results -->
+			<!--
+			<p:store indent="true">
+				<p:input port="source">
+					<p:pipe step="move-notes-out-of-metadata" port="result"/>
+				</p:input>
+				<p:with-option name="href" select="concat($output-directory, $output-file-uri-component, '-temp.xml')"/>
+			</p:store>
+			-->
 			<!-- save ODT content+style file for reference -->
 <!--
 			<p:store indent="true">
