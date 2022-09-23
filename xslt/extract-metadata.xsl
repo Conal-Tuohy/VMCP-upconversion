@@ -29,18 +29,18 @@ Pulls metadata elements from the text into the teiHeader tei:p[@rend='correspond
 	
 	<xsl:variable name="title" select="($title-paragraph, $incipit)[1]"/>
 	<xsl:variable name="title-paragraph" select="
-		/tei:TEI/tei:text/tei:body/tei:p[lower-case(@rend)='prelim%20head']
+		/tei:TEI/tei:text/tei:body/tei:p[lower-case(@rend)='VMCPTitle']
 	"/>
 	<xsl:variable name="incipit" select="
 		 concat( 
 			substring( 
 				string-join( 
-					(/tei:TEI/tei:text/tei:body/tei:p 
-						[not(@xml:lang='de')] 
-						[not( @rend=(
-							'Progress%20note',
-							'location'
-						))]
+					(/tei:TEI/tei:text/tei:body/(tei:p|tei:ab)
+						(: text (not metadata) paragraphs and blocks :)
+						[not(lower-case(@rend)=('number', 'correspondent', 'location', 'progress%20note', 'plant%20names', 'VMCPTitle'))]
+						(: not marked as something other than English :)
+						[not(@xml:lang ne 'en')] 
+						(: not empty :)
 						[normalize-space()]
 					)
 					[position()&lt;6]
@@ -144,10 +144,12 @@ Pulls metadata elements from the text into the teiHeader tei:p[@rend='correspond
 
 	<!-- create list of plant names, with punctuation removed -->
 	<xsl:variable name="plant-names" select="
-		for $name in 
-			(//tei:p|//tei:ab)[@rend=('Plant%20names', 'plant%20names')][normalize-space()]
-		return
-			replace($name, '\p{P}', '')
+		distinct-values(
+			for $name in 
+				(//tei:p|//tei:ab)[@rend=('Plant%20names', 'plant%20names')][normalize-space()]
+			return
+				replace($name, '\p{P}', '')
+		)
 	"/>
 	
 	<xsl:variable name="typefaces" select="
