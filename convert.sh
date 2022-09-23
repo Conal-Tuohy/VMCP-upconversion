@@ -27,7 +27,7 @@ sudo ~/convert-all.sh
 #rm convert-all.sh
 echo `date`: Purging existing TEI documents
 # TODO purge only documents that have been deleted in the original Word file (see the convert-all.sh script)
-#sudo rm -r -f /usr/src/xtf/data/tei
+sudo rm -r -f /usr/src/xtf/data/tei
 echo `date`: Converting OpenDocument files to TEI format ...
 sudo time $XPROC /usr/src/VMCP-upconversion/xproc/upconvert.xpl input-directory=/usr/src/VMCP-upconversion/odt output-directory=/usr/src/xtf/data/tei
 echo `date`: Rebuilding XTF index ...
