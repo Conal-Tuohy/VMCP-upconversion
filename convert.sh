@@ -1,9 +1,10 @@
 echo `date`: Conversion starting ...
 
-
 XPROC="java -jar /usr/share/xmlcalabash-1.4.1-100/xmlcalabash-1.4.1-100.jar"
 
-sudo -u tomcat git --work-tree=/usr/src/vmcp-word/ pull
+echo `date`: Retrieving Word files from github ...
+cd /usr/src/vmcp-word
+git pull
 
 echo `date`: Copying figure image files ...
 sudo mkdir -p /etc/xproc-z/vmcp/figure
@@ -26,4 +27,3 @@ echo `date`: Restarting Tomcat webserver ...
 sudo systemctl restart tomcat9
 sudo systemctl status tomcat9 --no-pager
 echo `date`: Conversion finished.
-
