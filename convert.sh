@@ -5,6 +5,10 @@ XPROC="java -jar /usr/share/xmlcalabash-1.4.1-100/xmlcalabash-1.4.1-100.jar"
 echo `date`: Retrieving ODT files from GitHub...
 cd /home/RBGV_Admin/vmcp-odt/ && git pull
 
+echo `date`: Copying figure image files ...
+sudo mkdir -p /etc/xproc-z/vmcp/figure
+sudo cp "/usr/src/vmcp-word/images in letters/"*.jpg /etc/xproc-z/vmcp/figure/
+
 echo `date`: Converting OpenDocument files to TEI format ...
 time $XPROC /usr/src/VMCP-upconversion/xproc/upconvert.xpl input-directory=/home/RBGV_Admin/vmcp-odt output-directory=/usr/src/xtf/data/tei
 
