@@ -12,8 +12,11 @@
 	<xsl:mode on-no-match="shallow-copy"/>
 	
 	<xsl:param name="plant-names"/>
+	<!--
 	<xsl:variable name="taxa-by-name" select="json-doc($plant-names)"/>
-	
+	-->
+	<xsl:variable name="taxa-by-name" select="parse-json(xml-to-json(doc($plant-names)))"/>
+
 	<xsl:template match="/TEI/teiHeader/profileDesc/textClass/keywords[@scheme='#plant-names']/term">
 		<xsl:copy>
 			<xsl:variable name="taxon-id" select="$taxa-by-name(.)"/>

@@ -20,6 +20,7 @@
 	<p:option name="input-directory" required="true"/>
 	<p:option name="output-directory" required="true"/>
 	<p:option name="temp-directory" select=" '/tmp/' "/>
+	<!-- TODO reenable -->
 	<vmcp:vicflora-names name="vicflora-names">
 		<p:with-option name="temp-directory" select="$temp-directory"/>
 	</vmcp:vicflora-names>
@@ -32,7 +33,7 @@
 	<p:declare-step name="sorted-directory-list" type="vmcp:directory-list">
 		<p:option name="path"/>
 		<p:output port="result"/>
-		<p:directory-list name="directory-list">
+		<p:directory-list name="directory-list" exclude-filter="^\..*">
 			<p:with-option name="path" select="$path"/>
 		</p:directory-list>
 		<p:xslt name="sort-directory-list"><!-- just so we can process the documents in chronological order -->
@@ -168,149 +169,205 @@
 					)
 				"/>
 			</cx:message>
-			<p:group>
-				<p:documentation>extract text and formatting stylesheet from the OpenDocument file</p:documentation>
-				<pxp:unzip file="content.xml" name="content">
-					<p:with-option name="href" select="concat($input-directory, $input-file-uri-component)"/>
-				</pxp:unzip>
-				<pxp:unzip file="styles.xml" name="styles">
-					<p:with-option name="href" select="concat($input-directory, $input-file-uri-component)"/>
-				</pxp:unzip>
-				<p:wrap-sequence wrapper="odt">
-					<p:input port="source">
-						<p:pipe step="styles" port="result"/>
-						<p:pipe step="content" port="result"/>
-					</p:input>
-				</p:wrap-sequence>
-			</p:group>
-			<p:identity name="styles-and-content"/>
-			<p:xslt name="p5">
-				<p:documentation>convert the OpenDocument file into TEI</p:documentation>
-				<p:with-param name="file-name" select="concat('data', $path-name, '/', replace($file-name, 'odt', 'doc'))"/>
-				<p:input port="stylesheet">
-					<p:document href="../xslt/odt-styles-and-content-to-tei.xsl"/>
-				</p:input>
-			</p:xslt>
-			<p:xslt name="move-notes-out-of-metadata">
-				<p:documentation>move notes out of "metadata" paragraphs</p:documentation>
-				<p:input port="parameters"><p:empty/></p:input>
-				<p:input port="stylesheet">
-					<p:document href="../xslt/move-notes-out-of-metadata-paragraphs.xsl"/>
-				</p:input>
-			</p:xslt>
-			<p:xslt name="symbols-in-unicode">
-				<p:documentation>Fix the obsolete "Symbol" encoding</p:documentation>
-				<p:input port="parameters"><p:empty/></p:input>
-				<p:input port="stylesheet">
-					<p:document href="../xslt/fix-symbol-encoding.xsl"/>
-				</p:input>
-			</p:xslt>
-			<p:xslt name="language-encoded-translations">
-				<p:documentation>handle German/English translations</p:documentation>
-				<p:input port="parameters"><p:empty/></p:input>
-				<p:input port="stylesheet">
-					<p:document href="../xslt/encode-translations.xsl"/>
-				</p:input>
-			</p:xslt>
-			<p:xslt name="semantic-tei">
-				<p:documentation>upconvert styles to semantic TEI elements</p:documentation>
-				<p:input port="parameters"><p:empty/></p:input>
-				<p:input port="stylesheet">
-					<p:document href="../xslt/tei-styled-text-to-semantic-markup.xsl"/>
-				</p:input>
-			</p:xslt>
-			<p:xslt name="metadata-extracted">
-				<p:documentation>find metadata in text and insert in header</p:documentation>
-				<p:input port="parameters"><p:empty/></p:input>
-				<p:input port="stylesheet">
-					<p:document href="../xslt/extract-metadata.xsl"/>
-				</p:input>
-			</p:xslt>
-			<p:xslt name="resolve-plant-names-with-vicflora">
-				<p:documentation>look plant names up in vicflora</p:documentation>
-				<p:with-param name="plant-names" select="concat($temp-directory, 'vicflora-names.json')"/>
-				<p:input port="stylesheet">
-					<p:document href="../xslt/resolve-plant-names-with-vicflora.xsl"/>
-				</p:input>
-			</p:xslt>
-			<p:xslt name="mark-up-names">
-				<p:documentation>find and mark up taxonomic names where they appear in the transcript text</p:documentation>
-				<p:input port="parameters"><p:empty/></p:input>
-				<p:input port="stylesheet">
-					<p:document href="../xslt/mark-up-names.xsl"/>
-				</p:input>
-			</p:xslt>
-			<p:xslt name="language-usage-metrics">
-				<p:documentation>Measure usage of English and German</p:documentation>
-				<p:input port="parameters"><p:empty/></p:input>
-				<p:input port="stylesheet">
-					<p:document href="../xslt/tei-add-lang-usage.xsl"/>
-				</p:input>
-			</p:xslt>
-			<p:xslt name="xtf-compatible">
-				<p:documentation>make changes for XTF compatibility; headings, identifiers, top-level div</p:documentation>
-				<p:input port="parameters"><p:empty/></p:input>
-				<p:input port="stylesheet">
-					<p:document href="../xslt/make-xtf-compatible.xsl"/>
-				</p:input>
-			</p:xslt>
-			<p:xslt name="footnotes-renumbered">
-				<p:documentation>renumber footnotes, which may not have been correctly sequentially numbered because they may be a mixture of OpenOffice footnotes and also manually formatted endnotes</p:documentation>
-				<p:input port="parameters"><p:empty/></p:input>
-				<p:input port="stylesheet">
-					<p:document href="../xslt/renumber-footnotes-sequentially.xsl"/>
-				</p:input>
-			</p:xslt>
-			<p:xslt name="clean-header">
-				<p:documentation>clean up header to remove empty container elements</p:documentation>
-				<p:input port="parameters"><p:empty/></p:input>
-				<p:input port="stylesheet">
-					<p:document href="../xslt/prune-empty-header-elements.xsl"/>
-				</p:input>
-			</p:xslt>
-			<p:xslt name="minimal-css">
-				<p:documentation>clean up unneeded css inherited from formatting in the Word document</p:documentation>
-				<p:input port="parameters"><p:empty/></p:input>
-				<p:input port="stylesheet">
-					<p:document href="../xslt/strip-rendundant-css.xsl"/>
-				</p:input>
-			</p:xslt>
-			<p:try>
-				<p:documentation>check schema validity and flag invalid documents</p:documentation>
-				<p:group name="validate-and-save">
-					<p:validate-with-relax-ng>
-						<p:input port="schema">
-							<p:document href="../schema/tei_all.rng"/>
+			<p:try name="extract-xml-from-odt">
+				<p:group>
+					<p:documentation>extract text and formatting stylesheet from the OpenDocument file</p:documentation>
+					<pxp:unzip file="content.xml" name="content">
+						<p:with-option name="href" select="concat($input-directory, $input-file-uri-component)"/>
+					</pxp:unzip>
+					<pxp:unzip file="styles.xml" name="styles">
+						<p:with-option name="href" select="concat($input-directory, $input-file-uri-component)"/>
+					</pxp:unzip>
+					<pxp:unzip file="meta.xml" name="meta">
+						<p:with-option name="href" select="concat($input-directory, $input-file-uri-component)"/>
+					</pxp:unzip>
+					<p:wrap-sequence wrapper="odt">
+						<p:input port="source">
+							<p:pipe step="styles" port="result"/>
+							<p:pipe step="content" port="result"/>
+							<p:pipe step="meta" port="result"/>
 						</p:input>
-					</p:validate-with-relax-ng>
-					<vmcp:add-keywords scheme-id="validity" scheme-name="validity" term="valid"/>
+					</p:wrap-sequence>
+					<p:identity name="styles-and-content"/>
+					<p:xslt name="p5">
+						<p:documentation>convert the OpenDocument file into TEI</p:documentation>
+						<p:with-param name="file-name" select="concat($path-name, '/', $file-name)"/>
+						<p:input port="stylesheet">
+							<p:document href="../xslt/odt-styles-and-content-to-tei.xsl"/>
+						</p:input>
+					</p:xslt>
+					<p:xslt name="move-notes-out-of-metadata">
+						<p:documentation>move notes out of "metadata" paragraphs</p:documentation>
+						<p:input port="parameters"><p:empty/></p:input>
+						<p:input port="stylesheet">
+							<p:document href="../xslt/move-notes-out-of-metadata-paragraphs.xsl"/>
+						</p:input>
+					</p:xslt>
+					<p:xslt name="symbols-in-unicode">
+						<p:documentation>Fix the obsolete "Symbol" encoding</p:documentation>
+						<p:input port="parameters"><p:empty/></p:input>
+						<p:input port="stylesheet">
+							<p:document href="../xslt/fix-symbol-encoding.xsl"/>
+						</p:input>
+					</p:xslt>
+					<p:xslt name="language-encoded-translations">
+						<p:documentation>handle German/English translations</p:documentation>
+						<p:input port="parameters"><p:empty/></p:input>
+						<p:input port="stylesheet">
+							<p:document href="../xslt/encode-translations.xsl"/>
+						</p:input>
+					</p:xslt>
+					<p:xslt name="semantic-tei">
+						<p:documentation>upconvert styles to semantic TEI elements</p:documentation>
+						<p:input port="parameters"><p:empty/></p:input>
+						<p:input port="stylesheet">
+							<p:document href="../xslt/tei-styled-text-to-semantic-markup.xsl"/>
+						</p:input>
+					</p:xslt>
+					<p:xslt name="metadata-extracted">
+						<p:documentation>find metadata in text and insert in header</p:documentation>
+						<p:input port="parameters"><p:empty/></p:input>
+						<p:input port="stylesheet">
+							<p:document href="../xslt/extract-metadata.xsl"/>
+						</p:input>
+					</p:xslt>
+					<p:xslt name="resolve-plant-names-with-vicflora">
+						<p:documentation>look plant names up in vicflora</p:documentation>
+						<p:with-param name="plant-names" select="concat($temp-directory, 'vicflora-names.json')"/>
+						<p:input port="stylesheet">
+							<p:document href="../xslt/resolve-plant-names-with-vicflora.xsl"/>
+						</p:input>
+					</p:xslt>
+					<p:xslt name="mark-up-names">
+						<p:documentation>find and mark up taxonomic names where they appear in the transcript text</p:documentation>
+						<p:input port="parameters"><p:empty/></p:input>
+						<p:input port="stylesheet">
+							<p:document href="../xslt/mark-up-names.xsl"/>
+						</p:input>
+					</p:xslt>
+					<p:xslt name="language-usage-metrics">
+						<p:documentation>Measure usage of English and German</p:documentation>
+						<p:input port="parameters"><p:empty/></p:input>
+						<p:input port="stylesheet">
+							<p:document href="../xslt/tei-add-lang-usage.xsl"/>
+						</p:input>
+					</p:xslt>
+					<!--
+					<p:xslt name="xtf-compatible">
+						<p:documentation>make changes for XTF compatibility; headings, identifiers, top-level div</p:documentation>
+						<p:input port="parameters"><p:empty/></p:input>
+						<p:input port="stylesheet">
+							<p:document href="../xslt/make-xtf-compatible.xsl"/>
+						</p:input>
+					</p:xslt>
+					-->
+					<p:xslt name="footnotes-renumbered">
+						<p:documentation>renumber footnotes, which may not have been correctly sequentially numbered because they may be a mixture of OpenOffice footnotes and also manually formatted endnotes</p:documentation>
+						<p:input port="parameters"><p:empty/></p:input>
+						<p:input port="stylesheet">
+							<p:document href="../xslt/renumber-footnotes-sequentially.xsl"/>
+						</p:input>
+					</p:xslt>
+					<p:xslt name="clean-header">
+						<p:documentation>clean up header to remove empty container elements</p:documentation>
+						<p:input port="parameters"><p:empty/></p:input>
+						<p:input port="stylesheet">
+							<p:document href="../xslt/prune-empty-header-elements.xsl"/>
+						</p:input>
+					</p:xslt>
+					<p:xslt name="minimal-css">
+						<p:documentation>clean up unneeded css inherited from formatting in the Word document</p:documentation>
+						<p:input port="parameters"><p:empty/></p:input>
+						<p:input port="stylesheet">
+							<p:document href="../xslt/strip-rendundant-css.xsl"/>
+						</p:input>
+					</p:xslt>
+					<p:try name="validate-and-save">
+						<p:documentation>check schema validity and flag invalid documents</p:documentation>
+						<p:group>
+							<p:validate-with-relax-ng>
+								<p:input port="schema">
+									<p:document href="../schema/tei_all.rng"/>
+								</p:input>
+							</p:validate-with-relax-ng>
+							<vmcp:add-keywords scheme-id="validity" scheme-name="validity" term="valid"/>
+						</p:group>
+						<p:catch name="invalid">
+							<vmcp:add-keywords scheme-id="validity" scheme-name="validity"  term="invalid"/>
+						</p:catch>
+					</p:try>
+					<!-- transformations migrated from the XProc-Z app now that the XTF app is retired -->
+					<p:xslt name="recognise-figure-filenames">
+						<p:input port="parameters"><p:empty/></p:input>
+						<p:input port="stylesheet">
+							<p:document href="../xslt/recognise-figure-filenames.xsl"/>
+						</p:input>
+					</p:xslt>
+					<p:xslt name="recognise-document-filenames">
+						<p:input port="parameters"><p:empty/></p:input>
+						<p:input port="stylesheet">
+							<p:document href="../xslt/recognise-document-filenames.xsl"/>
+						</p:input>
+					</p:xslt>
+					<p:xslt name="purge-extraneous-word-and-xtf-content">
+						<p:input port="parameters"><p:empty/></p:input>
+						<p:input port="stylesheet">
+							<p:document href="../xslt/purge-extraneous-word-and-xtf-content.xsl"/>
+						</p:input>
+					</p:xslt>
+					<p:xslt name="renumber-footnotes">
+						<p:input port="parameters"><p:empty/></p:input>
+						<p:input port="stylesheet">
+							<p:document href="../xslt/renumber-footnotes.xsl"/>
+						</p:input>
+					</p:xslt>
+					<p:xslt name="mark-up-translations">
+						<p:input port="parameters"><p:empty/></p:input>
+						<p:input port="stylesheet">
+							<p:document href="../xslt/mark-up-translations.xsl"/>
+						</p:input>
+					</p:xslt>
+					<p:xslt name="trim-white-space-elements">
+						<p:input port="parameters"><p:empty/></p:input>
+						<p:input port="stylesheet">
+							<p:document href="../xslt/trim-white-space-elements.xsl"/>
+						</p:input>
+					</p:xslt>
+					<!-- save TEI file -->
+					<p:store indent="true">
+						<p:with-option name="href" select="concat($output-directory, $output-file-uri-component)"/>
+					</p:store>
+					<!-- DEBUGGING CODE for dumping intermediate results -->
+					<!--
+					<p:store indent="true">
+						<p:input port="source">
+							<p:pipe step="move-notes-out-of-metadata" port="result"/>
+						</p:input>
+						<p:with-option name="href" select="concat($output-directory, $output-file-uri-component, '-temp.xml')"/>
+					</p:store>
+					-->
+					<!-- save ODT content+style file for reference -->
+		<!--
+					<p:store indent="true">
+						<p:with-option name="href" select="concat($input-directory, $output-file-uri-component)"/>
+						<p:input port="source">
+							<p:pipe step="styles-and-content" port="result"/>
+						</p:input>
+					</p:store>
+		-->
 				</p:group>
-				<p:catch name="invalid">
-					<vmcp:add-keywords scheme-id="validity" scheme-name="validity"  term="invalid"/>
+				<p:catch name="file-conversion-failed">
+					<!-- report the error -->
+					<!-- This can be caused by e.g. the presence of a MacOS Alias file in place of an actual ODT file -->
+					<p:variable name="error" select="string(/)">
+						<p:pipe step="file-conversion-failed" port="error"/>
+					</p:variable>
+					<cx:message>
+						<p:with-option name="message" select="concat('ERROR: Failed to convert ODT file to TEI XML ', $input-directory, $input-file-uri-component, '. ', $error)"/>
+					</cx:message>
+					<p:sink/>
 				</p:catch>
 			</p:try>
-			<!-- save TEI file -->
-			<p:store indent="true">
-				<p:with-option name="href" select="concat($output-directory, $output-file-uri-component)"/>
-			</p:store>
-			<!-- DEBUGGING CODE for dumping intermediate results -->
-			<!--
-			<p:store indent="true">
-				<p:input port="source">
-					<p:pipe step="move-notes-out-of-metadata" port="result"/>
-				</p:input>
-				<p:with-option name="href" select="concat($output-directory, $output-file-uri-component, '-temp.xml')"/>
-			</p:store>
-			-->
-			<!-- save ODT content+style file for reference -->
-<!--
-			<p:store indent="true">
-				<p:with-option name="href" select="concat($input-directory, $output-file-uri-component)"/>
-				<p:input port="source">
-					<p:pipe step="styles-and-content" port="result"/>
-				</p:input>
-			</p:store>
--->
 		</p:for-each>
 		<p:for-each name="subdirectory">
 			<p:iteration-source select="/c:directory/c:directory">
@@ -329,6 +386,11 @@
 	
 	<p:declare-step name="vicflora-names" type="vmcp:vicflora-names">
 		<p:option name="temp-directory"/>
+		<cx:message message="Retrieving vicflora names...">
+			<p:input port="source"><p:empty/></p:input>
+		</cx:message>
+		<p:sink/>
+		<!-- TODO re-enable download -->
 		<p:http-request name="graphql-query">
 			<p:input port="source">
 				<p:inline>
@@ -349,7 +411,6 @@
 						xmlns:c="http://www.w3.org/ns/xproc-step"
 						xmlns:fn="http://www.w3.org/2005/xpath-functions">
 						<xsl:template match="/c:body">
-							<xsl:copy>
 								<xsl:variable name="scientific-name-to-taxon-id-map">
 									<fn:map>
 										<xsl:for-each-group group-by="fn:string[@key='scientificName']" select="
@@ -364,14 +425,13 @@
 										</xsl:for-each-group>
 									</fn:map>
 								</xsl:variable>
-								<xsl:sequence select="xml-to-json($scientific-name-to-taxon-id-map)"/>
-							</xsl:copy>
+								<xsl:sequence select="$scientific-name-to-taxon-id-map"/>
 						</xsl:template>
 					</xsl:stylesheet>
 				</p:inline>
 			</p:input>
 		</p:xslt>
-		<p:store method="text" indent="true">
+		<p:store method="xml" indent="true">
 			<p:with-option name="href" select="concat($temp-directory, 'vicflora-names.json')"/>
 		</p:store>
 	</p:declare-step>

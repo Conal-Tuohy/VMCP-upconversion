@@ -7,6 +7,10 @@
 # ignore jEdit's backup files
 *.???~
 
+/temp
 /xproc/transformed
 
+/.idea
+
+*.im
 .DS_Store

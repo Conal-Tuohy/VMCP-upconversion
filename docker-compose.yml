@@ -1,0 +1,23 @@
+name: upconversion
+
+services:
+
+  pipeline:
+    container_name: pipeline
+    build:
+      dockerfile_inline: |
+        FROM eclipse-temurin:21
+        
+        # Update package list and install git
+        RUN apt-get update && \
+            apt-get install -y git && \
+            apt-get clean && \
+            rm -rf /var/lib/apt/lists/*
+        
+        # Keep container running
+        #CMD ["tail", "-f", "/dev/null"]
+    volumes:
+      - .:/opt/VMCP-upconversion
+      - /var/lib/vmcp-tei:/var/lib/vmcp-tei # the TEI corpus
+      - /var/lib/vmcp-odt:/var/lib/vmcp-odt # the ODT corpus
+    command: ["/bin/bash", "-c", "/opt/VMCP-upconversion/convert.sh"]
