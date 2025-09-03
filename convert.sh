@@ -13,7 +13,7 @@ XPROC="java -cp /opt/VMCP-upconversion/calabash/lib/*:/opt/VMCP-upconversion/cal
 #pandoc -f odt -t markdown ./apparatus/muellers-publications.odt | pandoc -f markdown -t odt -o ./letters/apparatus/muellers-publications.odt#
 
 echo `date`: Purging TEI
-rm -r /var/lib/vmcp-tei/letters/
+#rm -r /var/lib/vmcp-tei/letters/
 
 echo `date`: Converting OpenDocument files to TEI format ...
 time $XPROC /opt/VMCP-upconversion/xproc/upconvert.xpl input-directory=/var/lib/vmcp-odt output-directory=/var/lib/vmcp-tei
