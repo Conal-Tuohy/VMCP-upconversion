@@ -198,7 +198,7 @@ Pulls metadata elements from the text into the teiHeader tei:p[@rend='correspond
 			<keywords scheme="#status">
 				<xsl:choose>
 					<xsl:when test="matches( /tei:TEI/tei:teiHeader/tei:fileDesc/tei:publicationStmt/tei:idno[@type='filename'],
-						'-final.doc$'
+						'-final\.odt$'
 					)">
 						<term>final</term>
 					</xsl:when>
